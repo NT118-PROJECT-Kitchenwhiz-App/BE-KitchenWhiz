@@ -33,10 +33,20 @@ userSchema.pre("save", async function() {
         const hashpass = await bcrypt.hash(user.password, salt);
         user.password = hashpass;
     }
-    catch (err) {
-        throw err;
+    catch (error) {
+        throw error;
     }
-})
+});
+
+userSchema.methods.comparePassword = async function (userPassword) {
+    try {
+        const isMatch = await bcrypt.compareSync(userPassword, this.password);
+        return isMatch;
+    }
+    catch (error) {
+        throw error;
+    }
+}
 
 const UserModel = db.model('users', userSchema);
 

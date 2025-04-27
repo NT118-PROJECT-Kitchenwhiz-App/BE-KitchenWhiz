@@ -1,4 +1,5 @@
 const UserModel = require("../models/user_model");
+const jwt = require("jsonwebtoken");
 
 class UserService {
     static async registerUser(email, username, password) {
@@ -9,6 +10,29 @@ class UserService {
         catch (err) {
             throw err;
         }
+    }
+
+    static async checkUser(login) {
+        try {
+            let query = {};
+
+            if (login.includes('@')) {
+                query = {email: login};
+            }
+            else {
+                query = {username: login};
+            }
+            const user = await UserModel.findOne(query);
+
+            return user;
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+
+    static async generateToken(tokenData, secretKey, jwt_expire) {
+        return jwt.sign(tokenData, secretKey, {expiresIn:jwt_expire});
     }
 }
 
