@@ -8,6 +8,6 @@ const app = express();
 
 app.use(body_parser.json());
 
-app.use('/', userRouter);
+app.use('/api/user', userRouter);
 
 module.exports = app;
