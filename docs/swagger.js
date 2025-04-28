@@ -53,7 +53,6 @@ const options = {
           required: ['email', 'otp', 'newPassword'],
           properties: {
             email: { type: 'string' },
-            otp: { type: 'string' },
             newPassword: { type: 'string', format: 'password' },
           },
         },
