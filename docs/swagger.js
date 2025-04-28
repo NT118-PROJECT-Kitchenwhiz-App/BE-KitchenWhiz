@@ -27,7 +27,7 @@ const options = {
         },
         UserLogin: {
           type: 'object',
-          required: ['email', 'password'],
+          required: ['login', 'password'],
           properties: {
             email: { type: 'string' },
             password: { type: 'string', format: 'password' },
@@ -35,7 +35,7 @@ const options = {
         },
         VerifyOtp: {
           type: 'object',
-          required: ['email', 'otp'],
+          required: ['email', 'otpCode'],
           properties: {
             email: { type: 'string' },
             otp: { type: 'string' },
@@ -50,7 +50,7 @@ const options = {
         },
         ResetPassword: {
           type: 'object',
-          required: ['email', 'otp', 'newPassword'],
+          required: ['email', 'newPassword'],
           properties: {
             email: { type: 'string' },
             newPassword: { type: 'string', format: 'password' },
