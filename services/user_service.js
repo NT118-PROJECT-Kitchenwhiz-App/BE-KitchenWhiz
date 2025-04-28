@@ -14,6 +14,20 @@ class UserService {
         }
     }
 
+    static async updatePassword(email, newPassword) {
+        try {
+            const user = await UserModel.findOne({email});
+            if (!user) {
+                throw new Error("User not found");
+            }
+            user.password = newPassword;
+            await user.save();
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+
     static async checkUser(login) {
         try {
             let query = {};
