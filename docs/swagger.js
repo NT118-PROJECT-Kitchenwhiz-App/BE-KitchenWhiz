@@ -18,10 +18,10 @@ const options = {
       schemas: {
         UserRegistration: {
           type: 'object',
-          required: ['username', 'email', 'password'],
+          required: ['email', 'username', 'password'],
           properties: {
-            username: { type: 'string' },
             email: { type: 'string' },
+            username: { type: 'string' },
             password: { type: 'string', format: 'password' },
           },
         },
@@ -29,7 +29,7 @@ const options = {
           type: 'object',
           required: ['login', 'password'],
           properties: {
-            email: { type: 'string' },
+            login: { type: 'string' },
             password: { type: 'string', format: 'password' },
           },
         },
@@ -38,7 +38,7 @@ const options = {
           required: ['email', 'otpCode'],
           properties: {
             email: { type: 'string' },
-            otp: { type: 'string' },
+            otpCode: { type: 'string' },
           },
         },
         ForgotPassword: {
