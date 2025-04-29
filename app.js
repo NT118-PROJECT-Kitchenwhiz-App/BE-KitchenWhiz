@@ -10,8 +10,7 @@ const app = express();
 
 app.use(body_parser.json());
 
-app.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-app.use('/api/user', userRouter);
+app.use('/api/user', userRouter); 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));  
 
 module.exports = app;
