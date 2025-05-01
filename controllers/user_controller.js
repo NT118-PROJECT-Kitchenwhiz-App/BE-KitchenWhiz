@@ -8,6 +8,16 @@ exports.register = async(req, res, next) => {
     try {
         const {email, username, password} = req.body;
 
+        const existingEmailUser = await UserService.checkUser(email);
+        if (existingEmailUser) {
+            return res.status(400).json({ status: false, message: "Email is already registered." });
+        }
+
+        const existingUsernameUser = await UserService.checkUser(username);
+        if (existingUsernameUser) {
+            return res.status(400).json({ status: false, message: "Username is already taken." });
+        }
+
         // 1. Generate OTP
         const otpCode = Math.floor(100000 + Math.random() * 900000);
 
