@@ -54,7 +54,16 @@ exports.login = async(req, res, next) => {
 
         const token = await UserService.generateToken(tokenData, "secretKey", '1h');
 
-        res.status(200).json({status:true, token:token});
+        // Refresh token (expires in 7 days)
+        const refreshToken = await UserService.generateToken(tokenData, "secretKey", '7d');
+
+        res.status(200).json({
+            status: true,
+            email: user.email,
+            username: user.username,
+            token: token,
+            refreshToken: refreshToken
+        });
     }
     catch (error) {
         throw error; 
