@@ -6,12 +6,14 @@ const {Schema} = mongoose;
 
 const user_favorite_recipesSchema = new Schema ({
     user_id: {
-        tpye: mongoose.Schema.Types.ObjectId,
-        require: true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "users",
+        required: true
     },
     recipe_id: {
-        tpye: mongoose.Schema.Types.ObjectId,
-        require: true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "recipes",
+        required: true
     }
 });
 

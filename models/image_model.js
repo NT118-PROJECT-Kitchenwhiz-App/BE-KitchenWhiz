@@ -5,20 +5,17 @@ const db = require("../config/database");
 const {Schema} = mongoose;
 
 const imageSchema = new Schema ({
-    filename: {
-        type: String,
-        require: true,
-    },
     image_url: {
-        tpye: String,
-        require:true,
+        type: String,
+        required:true,
+        unique: true
     },
     image_public_id: {
         type: String,
-        require: true
+        required: true
     }
 });
 
-const ImageModel = db.model.Schema('images', imageSchema);
+const ImageModel = db.model('images', imageSchema);
 
 module.exports = ImageModel;

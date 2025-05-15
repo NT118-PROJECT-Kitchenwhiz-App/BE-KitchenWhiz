@@ -6,12 +6,14 @@ const {Schema} = mongoose;
 
 const recipes_imagesSchema = new Schema({
     recipe_id: {
-        tpye: mongoose.Schema.Types.ObjectId,
-        require: true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "recipes",
+        required: true
     },
     image_id: {
-        tpye: mongoose.Schema.Types.ObjectId,
-        require: true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "images",
+        required: true
     }
 });
 

@@ -2,14 +2,38 @@ const RecipeModel = require("../models/recipe_model");
 
 class RecipeService {
 
-    static async createRecipe(title, imageUrl, imagePublicId) {
+    static async createRecipe(recipeInfo) {
         try {
+            const {
+                title,
+                servings,
+                ready_in_minute,
+                summary,
+                instructions
+            } = recipeInfo;
+
             const recipe = new RecipeModel({
-                title, 
-                imageUrl,
-                imagePublicId
+                title,
+                servings,
+                ready_in_minute,
+                summary,
+                instructions
             });
+
             return await recipe.save();
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+
+    static async getRecipeId(title) {
+        try {
+            const recipe = await RecipeModel.findOne({title});
+            if (recipe) {
+                return recipe._id;
+            }
+            else return null;
         }
         catch (error) {
             throw error;

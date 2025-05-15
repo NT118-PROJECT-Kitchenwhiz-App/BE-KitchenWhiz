@@ -7,11 +7,12 @@ const { Schema } = mongoose;
 const recipeSchema = new Schema ({
     title: {
         type: String,
-        require: true
+        required: true,
+        unique: true
     },
     servings: {
         type: Number,
-        require: true
+        required: true
     },
     ready_in_minutes: {
         type: Number,
@@ -19,14 +20,10 @@ const recipeSchema = new Schema ({
     summary: {
         type: String,
     },
-    intructions: {
+    instructions: {
         type: String,
-    },
-    cuisines: {
-        type: String
-    },
-    dish_types: String
-})
+    }
+});
 
 const RecipeModel = db.model('recipes', recipeSchema);
 module.exports = RecipeModel;

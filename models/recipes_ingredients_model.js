@@ -6,12 +6,14 @@ const {Schema} = mongoose;
 
 const recipes_ingredientsSchema = new Schema({
     recipe_id: {
-        tpye: mongoose.Schema.Types.ObjectId,
-        require: true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "recipes",
+        required: true
     },
     ingredient_id: {
-        tpye: mongoose.Schema.Types.ObjectId,
-        require: true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ingredients",
+        required: true
     },
     amount: Number,
     unit: String
