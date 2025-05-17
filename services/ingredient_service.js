@@ -11,22 +11,23 @@ class IngredientService {
         }
     }
 
-    static async isIngredientExisted(name) {
-        if (getIngredientId(name) == null) return false;
-        return true; 
-    }
-
     static async getIngredientId(name) {
         try {
-            const ingredient = IngredientModel.findOne({name});
+            const ingredient = await IngredientModel.findOne({name});
 
             if (ingredient) return ingredient._id;
             return null;
         }
         catch (error) {
-            throw error;
+            return null;
         }
     }
+
+    static async isIngredientExisted(name) {
+        const id = await this.getIngredientId(name);
+        return id !== null;
+    }
+
 }
 
 module.exports = IngredientService;

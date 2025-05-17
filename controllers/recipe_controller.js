@@ -9,25 +9,9 @@ const {uploadImage} = require("../utilities/cloudinary");
 exports.addRecipe = async (req, res, next) => {
     try {
         // 1. Lay thong tin
-        const {recipeInfo} = req.body;
-        const imageFile = req.file;
+        const { recipeInfo } = req.body;
+        const parsedRecipeInfo = JSON.parse(recipeInfo); // 👈 Parse string to object
 
-        // 2. Them image vao database
-        if (!imageFile) {
-            return res.status(400).json({ message: 'Image is required' });
-        }   
-
-        const uploadResult = await uploadImage(imageFile.path);
-
-        const imageInfo = {
-            url: uploadResult.secure_url, 
-            public_id: uploadResult.public_id
-        }
-        await ImageService.createImage(imageInfo);
-
-        const imageId = await ImageService.getImageId(url);
-
-        // 3. Them recipe vao database
         const { 
             title, 
             servings, 
@@ -35,32 +19,50 @@ exports.addRecipe = async (req, res, next) => {
             summary, 
             instructions, 
             ingredients
-        } = recipeInfo;
+        } = parsedRecipeInfo;
+
+        const imageFile = req.file;
+        // 2. Them image vao database
+        if (!imageFile) {
+            return res.status(400).json({ message: 'Image is required' });
+        }   
+        
+        const uploadResult = await uploadImage(imageFile.path);
+
+        const imageInfo = {
+            image_url: uploadResult.secure_url.toString()
+        }
+        await ImageService.createImage(imageInfo);
+
+        const imageId = await ImageService.getImageId(uploadResult.secure_url.toString());
 
         await RecipeServie.createRecipe({title, servings, readyInMinutes, summary, instructions});
         const recipeId = await RecipeServie.getRecipeId(title);
 
         // 4. Them ingredient vao database
         if (ingredients && Array.isArray(ingredients)) {
-            ingredients.forEach(async ingredient => {
+            for (const ingredient of ingredients) {
                 const {name, amount, unit} = ingredient;
 
-                if (IngredientService.isIngredientExisted(name) == false)
+                const existed = await IngredientService.isIngredientExisted(name);
+                if (!existed) {
                     await IngredientService.createIngredient(name);
-                const ingredientId = IngredientService.getIngredientId(name);
+                }
+
+                const ingredientId = await IngredientService.getIngredientId(name);
 
                 await RecipesIngredientsService.createRecipesIngrident({
-                    recipeId,
-                    ingredientId,
+                    recipe_id: recipeId,
+                    ingredient_id: ingredientId,
                     amount,
                     unit
-                })
-
-            });
+                });
+            }
         }
 
+
         // 5. Them recipes_images
-        await RecipesImagesService.createRecipeImage({recipeId, imageId});
+        await RecipesImagesService.createRecipeImage({recipe_id: recipeId, image_id: imageId});
 
         res.status(201).json({messege: "Add recipe successful"});
     }

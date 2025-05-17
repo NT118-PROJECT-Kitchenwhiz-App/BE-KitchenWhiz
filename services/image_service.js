@@ -4,11 +4,9 @@ class ImageService {
 
     static async createImage(imageData) {
         try {
-            const {image_url, image_public_id} = imageData;
-
+            const {image_url} = imageData;
             const newImage = new ImageModel({
-                image_url,
-                image_public_id
+                image_url
             });
 
             return await newImage.save();
@@ -19,15 +17,10 @@ class ImageService {
     }
 
     static async getImageId(image_url) {
-        try {
-            const image = await ImageModel.findOne({image_url});
+        const image = await ImageModel.findOne({image_url});
 
-            if (image) return image._id;
-            return null;
-        }
-        catch (error) {
-            throw error;
-        }
+        if (image) return image._id;
+        return null;
     }
 }
 

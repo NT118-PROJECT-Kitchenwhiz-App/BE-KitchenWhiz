@@ -9,10 +9,6 @@ const imageSchema = new Schema ({
         type: String,
         required:true,
         unique: true
-    },
-    image_public_id: {
-        type: String,
-        required: true
     }
 });
 
