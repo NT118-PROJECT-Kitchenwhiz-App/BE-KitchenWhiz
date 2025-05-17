@@ -28,6 +28,13 @@ class IngredientService {
         return id !== null;
     }
 
+    static async getIngredient(ingredientId) {
+        const ingredient = await IngredientModel.findOne({_id: ingredientId});
+        if (ingredient) 
+            return ingredient;
+        return null;
+    }
+
 }
 
 module.exports = IngredientService;

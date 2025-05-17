@@ -15,6 +15,17 @@ class RecipesImagesService {
             throw error;
         }
     }
+
+    static async getImgageId(recipeId) {
+        try {
+            const item = await RecipesImagesModel.findOne({recipe_id: recipeId}).lean();
+            if (item) return item.image_id;
+            return null;
+        }
+        catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = RecipesImagesService;

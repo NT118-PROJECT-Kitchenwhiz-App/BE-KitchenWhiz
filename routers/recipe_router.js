@@ -80,4 +80,89 @@ const upload = require("../middleware/multer");
  */
 router.post('/addRecipe', upload.single('image'), RecipeController.addRecipe);
 
+/**
+ * @swagger
+ * /recipe/{id}:
+ *   get:
+ *     summary: Lấy thông tin công thức theo ID
+ *     tags:
+ *       - Recipes
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: ID của công thức
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: 6653a1b8f2e3e6b0e32e94ab
+ *     responses:
+ *       200:
+ *         description: Trả về thông tin chi tiết công thức
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   example: 6653a1b8f2e3e6b0e32e94ab
+ *                 title:
+ *                   type: string
+ *                   example: Vietnamese Pho
+ *                 image:
+ *                   type: string
+ *                   example: https://spoonacular.com/recipeImages/654959-556x370.jpg
+ *                 servings:
+ *                   type: integer
+ *                   example: 2
+ *                 readyInMinutes:
+ *                   type: integer
+ *                   example: 90
+ *                 summary:
+ *                   type: string
+ *                   example: Vietnamese Pho is a Vietnamese main course.
+ *                 instructions:
+ *                   type: string
+ *                   example: Boil beef bones for 4 hours... Add spices...
+ *                 ingredients:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: 10023572
+ *                       name:
+ *                         type: string
+ *                         example: beef bones
+ *                       amount:
+ *                         type: number
+ *                         example: 2
+ *                       unit:
+ *                         type: string
+ *                         example: pounds
+ *       404:
+ *         description: Không tìm thấy công thức
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Recipe not found
+ *       500:
+ *         description: Lỗi máy chủ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Internal Server Error
+ */
+
+router.get('/:id', RecipeController.getRecipe);
+
 module.exports = router;

@@ -39,6 +39,17 @@ class RecipeService {
             throw error;
         }
     }
+
+    static async getRecipe(recipeId) {
+        try {
+            const recipe = await RecipeModel.findOne({_id: recipeId}).lean();
+            if (recipe) return recipe;
+            return null;
+        }
+        catch (error) {
+            throw (error);
+        }
+    }
 }
 
 module.exports = RecipeService;
