@@ -56,25 +56,6 @@ const options = {
             newPassword: { type: 'string', format: 'password' },
           },
         },
-        // DishCreate: {
-        //   type: 'object',
-        //   required: ['name', 'description', 'price'],
-        //   properties: {
-        //     name: { type: 'string' },
-        //     description: { type: 'string' },
-        //     price: { type: 'number' },
-        //     imageUrl: { type: 'string' },
-        //   },
-        // },
-        // DishUpdate: {
-        //   type: 'object',
-        //   properties: {
-        //     name: { type: 'string' },
-        //     description: { type: 'string' },
-        //     price: { type: 'number' },
-        //     imageUrl: { type: 'string' },
-        //   },
-        // },
       },
       securitySchemes: {
         bearerAuth: {
