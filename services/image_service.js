@@ -22,6 +22,13 @@ class ImageService {
         if (image) return image._id;
         return null;
     }
+
+    static async getImageUrl(imageId) {
+        const image = await ImageModel.findOne({_id: imageId});
+
+        if (image) return image.image_url;
+        return null; 
+    }
 }
 
 module.exports = ImageService;

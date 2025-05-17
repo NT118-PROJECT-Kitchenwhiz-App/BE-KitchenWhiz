@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+
 const RecipeServie = require("../services/recipe_service");
 const ImageService = require("../services/image_service");
 const IngredientService = require("../services/ingredient_service");
@@ -71,3 +73,43 @@ exports.addRecipe = async (req, res, next) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
+exports.getRecipe = async (req, res, next) => {
+    try {
+
+        const {id} = req.params;
+
+        const recipeId = new mongoose.Types.ObjectId(id);
+
+        // 1. Lấy recipe chính
+        const recipe = await RecipeServie.getRecipe(recipeId);
+        if (!recipe) 
+            return res.status(404).json({message: "Recipe not found"});
+
+        // 2. Lấy image_id từ recipes_images
+        const imageId = await RecipesImagesService.getImgageId(recipeId);
+        
+        // 3. Lấy image url từ images thông qua id
+        const imageUrl = await ImageService.getImageUrl(imageId);
+
+        // 4. Lấy danh sách ingredient thông qua recipeId
+        const ingredients = await RecipesIngredientsService.getRecipeIngredients(recipeId);
+
+        // 5. Gộp dữ liệu
+        const finalResult = {
+            _id: recipe._id,
+            title: recipe.title,
+            image: imageUrl,
+            servings: recipe.servings,
+            readyInMinutes: recipe.ready_in_minutes,
+            summary: recipe.summary,
+            instructions: recipe.instructions,
+            ingredients: ingredients
+        };
+        res.status(201).json(finalResult);
+    }
+    catch (error) {
+        console.error("Error get recipe: ", error);
+        res.status(500).json({message: "Internal server error!"});
+    }
+}
