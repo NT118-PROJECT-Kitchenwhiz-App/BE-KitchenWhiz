@@ -113,3 +113,39 @@ exports.getRecipe = async (req, res, next) => {
         res.status(500).json({message: "Internal server error!"});
     }
 }
+
+exports.searchByIngredient = async (req, res, next) => {
+    try {
+        const {name} = req.query;
+        console.log(req.query);
+
+        if (!name) {
+            return res.status(400).json({message: 'Ingredient name is require'});
+        }
+        const ingredientId = await IngredientService.getIngredientId(name);
+        if (!ingredientId) {
+            return res.status(404).json({message: 'Ingredient not found'});
+        }
+
+        const recipeIds = await RecipesIngredientsService.getRecipeIdsByIngredientId(ingredientId);
+
+        const result = await Promise.all(recipeIds.map(async (recipeId) => {
+            const recipe = await RecipeServie.getRecipe(recipeId);
+            const imageId = await RecipesImagesService.getImgageId(recipeId);
+            const imageUrl = await ImageService.getImageUrl(imageId);
+            return {
+                _id: recipe._id,
+                title: recipe.title,
+                image: imageUrl
+            };
+        }));
+
+        // console.log(result);
+        res.status(201).json(result);
+
+    }
+    catch (error) {
+        console.error('Error search by ingredient:', error);
+        res.status(500).json({error: 'Internal Server Error'});
+    }
+}

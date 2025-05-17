@@ -39,6 +39,23 @@ class RecipesIngredientsService {
         }
         return null;
     }
+
+    static async getRecipeIdsByIngredientId (ingredientId) {
+        const recipes = await RecipesIngredientsModel.find({ingredient_id: ingredientId}).lean();
+        
+        if (!recipes) return [];
+
+        const recipeIds = recipes.map((ri) => {
+            try {
+                return new mongoose.Types.ObjectId(ri.recipe_id);
+            } catch (err) {
+                console.warn("⚠️ Invalid ObjectId in recipe_id:", ri.recipe_id);
+                return null;
+            }
+        }).filter(id => id !== null);
+            
+        return recipeIds;
+    }
 }
 
 module.exports = RecipesIngredientsService;
