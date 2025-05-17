@@ -82,6 +82,44 @@ router.post('/addRecipe', upload.single('image'), RecipeController.addRecipe);
 
 /**
  * @swagger
+ * /recipe/searchByIngredient:
+ *   get:
+ *     summary: Tìm món ăn theo tên thành phần
+ *     tags:
+ *       - Recipes
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Tên thành phần (ingredient) cần tìm
+ *     responses:
+ *       200:
+ *         description: Danh sách món ăn chứa thành phần đó
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                   title:
+ *                     type: string
+ *                   image:
+ *                     type: string
+ *       404:
+ *         description: Không tìm thấy thành phần
+ *       500:
+ *         description: Lỗi máy chủ
+ */
+
+router.get('/searchByIngredient', RecipeController.searchByIngredient);
+
+/**
+ * @swagger
  * /recipe/{id}:
  *   get:
  *     summary: Lấy thông tin công thức theo ID
@@ -164,5 +202,7 @@ router.post('/addRecipe', upload.single('image'), RecipeController.addRecipe);
  */
 
 router.get('/:id', RecipeController.getRecipe);
+
+
 
 module.exports = router;

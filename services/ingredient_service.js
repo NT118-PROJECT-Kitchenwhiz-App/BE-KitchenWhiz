@@ -19,7 +19,7 @@ class IngredientService {
             return null;
         }
         catch (error) {
-            return null;
+            throw error;
         }
     }
 
@@ -34,6 +34,7 @@ class IngredientService {
             return ingredient;
         return null;
     }
+
 
 }
 
