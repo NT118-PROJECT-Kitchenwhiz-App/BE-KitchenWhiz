@@ -1,7 +1,10 @@
 const { response } = require("express");
 const UserService = require("../services/user_service");
+const UserFavoriteRecipesService = require('../services/user_favorite_recipes_service');
+const UserViewedRecipesService = require('../services/user_viewed_recipes_service');
 const OtpCacheService = require("../services/otp_cache_service");
 const sendOtpEmail = require("../utilities/mailer");
+const mongoose = require('mongoose');
 
 // Registation API
 exports.register = async(req, res, next) => {
@@ -148,4 +151,15 @@ exports.vertifyOtp = async(req, res, next) => {
     catch (error) {
         next(error);
     }
+}
+
+// Add Favorite Recipe
+exports.addFavoriteRecipe = async(req, res, next) => {
+    let {userId, recipeId} = req.body;
+    userId = new mongoose.Types.ObjectId(userId);
+    recipeId = new mongoose.Types.ObjectId(recipeId);
+
+    const favoriteExisted = await UserFavoriteRecipesService.favoriteRecipeExisted(userId, recipeId);
+    
+
 }

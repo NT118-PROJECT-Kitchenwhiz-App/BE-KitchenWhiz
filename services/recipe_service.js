@@ -7,7 +7,7 @@ class RecipeService {
             const {
                 title,
                 servings,
-                ready_in_minute,
+                ready_in_minutes,
                 summary,
                 instructions
             } = recipeInfo;
@@ -15,7 +15,7 @@ class RecipeService {
             const recipe = new RecipeModel({
                 title,
                 servings,
-                ready_in_minute,
+                ready_in_minutes : ready_in_minutes,
                 summary,
                 instructions
             });

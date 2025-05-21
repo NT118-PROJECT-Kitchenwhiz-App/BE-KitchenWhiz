@@ -17,7 +17,7 @@ exports.addRecipe = async (req, res, next) => {
         const { 
             title, 
             servings, 
-            readyInMinutes, 
+            ready_in_minutes, 
             summary, 
             instructions, 
             ingredients
@@ -38,9 +38,11 @@ exports.addRecipe = async (req, res, next) => {
 
         const imageId = await ImageService.getImageId(uploadResult.secure_url.toString());
 
-        await RecipeServie.createRecipe({title, servings, readyInMinutes, summary, instructions});
+        console.log({title, servings, ready_in_minutes, summary, instructions});
+        await RecipeServie.createRecipe({title, servings, ready_in_minutes, summary, instructions});
         const recipeId = await RecipeServie.getRecipeId(title);
 
+        
         // 4. Them ingredient vao database
         if (ingredients && Array.isArray(ingredients)) {
             for (const ingredient of ingredients) {
@@ -101,7 +103,7 @@ exports.getRecipe = async (req, res, next) => {
             title: recipe.title,
             image: imageUrl,
             servings: recipe.servings,
-            readyInMinutes: recipe.ready_in_minutes,
+            ready_in_minutes: recipe.ready_in_minutes,
             summary: recipe.summary,
             instructions: recipe.instructions,
             ingredients: ingredients

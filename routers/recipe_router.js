@@ -30,7 +30,7 @@ const upload = require("../middleware/multer");
  *                   {
  *                     "title": "Spaghetti Bolognese",
  *                     "servings": 4,
- *                     "readyInMinutes": 45,
+ *                     "ready_in_minutes": 45,
  *                     "summary": "A classic Italian pasta dish.",
  *                     "instructions": "1. Heat oil... 2. Add meat...",
  *                     "ingredients": [
@@ -153,7 +153,7 @@ router.get('/searchByIngredient', RecipeController.searchByIngredient);
  *                 servings:
  *                   type: integer
  *                   example: 2
- *                 readyInMinutes:
+ *                 ready_in_minutes:
  *                   type: integer
  *                   example: 90
  *                 summary:

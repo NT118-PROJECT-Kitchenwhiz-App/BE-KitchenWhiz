@@ -16,6 +16,7 @@ const recipeSchema = new Schema ({
     },
     ready_in_minutes: {
         type: Number,
+        required: true
     },
     summary: {
         type: String,

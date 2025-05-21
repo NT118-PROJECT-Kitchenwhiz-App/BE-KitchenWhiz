@@ -106,6 +106,17 @@ router.post('/forgotPassword', UserController.forgotPassword);
  *       400:
  *         description: OTP không hợp lệ hoặc lỗi khác
  */
+
 router.post('/resetPassword', UserController.resetPassword);
+
+// router.post('/addFavoriteRecipes', UserController.addFavoriteRecipe);
+
+// router.post('/addViewedRecipes', UserController.addViewedRecipe);
+
+// router.get('/allFavoriteRecipes', UserController.allFavoriteRecipes);
+
+// router.get('/allViewRecipes', UserController.allViewedRecipes);
+
+// router.delete('/deletefavoriteRecipe', UserController.deleteFavoriteRecipe);
 
 module.exports = router;
