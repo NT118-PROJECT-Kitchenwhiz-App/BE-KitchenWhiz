@@ -49,7 +49,7 @@ class RecipesIngredientsService {
             try {
                 return new mongoose.Types.ObjectId(ri.recipe_id);
             } catch (err) {
-                console.warn("⚠️ Invalid ObjectId in recipe_id:", ri.recipe_id);
+                console.warn("Invalid ObjectId in recipe_id:", ri.recipe_id);
                 return null;
             }
         }).filter(id => id !== null);

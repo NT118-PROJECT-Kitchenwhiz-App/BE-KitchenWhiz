@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const RecipeServie = require("../services/recipe_service");
+const RecipeService = require("../services/recipe_service");
 const ImageService = require("../services/image_service");
 const IngredientService = require("../services/ingredient_service");
 const RecipesIngredientsService = require("../services/recipes_ingredients_service");
@@ -39,7 +39,7 @@ exports.addRecipe = async (req, res, next) => {
         const imageId = await ImageService.getImageId(uploadResult.secure_url.toString());
 
         console.log({title, servings, ready_in_minutes, summary, instructions});
-        await RecipeServie.createRecipe({title, servings, ready_in_minutes, summary, instructions});
+        await RecipeService.createRecipe({title, servings, ready_in_minutes, summary, instructions});
         const recipeId = await RecipeServie.getRecipeId(title);
 
         
@@ -84,7 +84,7 @@ exports.getRecipe = async (req, res, next) => {
         const recipeId = new mongoose.Types.ObjectId(id);
 
         // 1. Lấy recipe chính
-        const recipe = await RecipeServie.getRecipe(recipeId);
+        const recipe = await RecipeService.getRecipe(recipeId);
         if (!recipe) 
             return res.status(404).json({message: "Recipe not found"});
 
@@ -130,16 +130,18 @@ exports.searchByIngredient = async (req, res, next) => {
         }
 
         const recipeIds = await RecipesIngredientsService.getRecipeIdsByIngredientId(ingredientId);
-
+ 
         const result = await Promise.all(recipeIds.map(async (recipeId) => {
-            const recipe = await RecipeServie.getRecipe(recipeId);
-            const imageId = await RecipesImagesService.getImgageId(recipeId);
-            const imageUrl = await ImageService.getImageUrl(imageId);
-            return {
-                _id: recipe._id,
-                title: recipe.title,
-                image: imageUrl
-            };
+            const recipe = await RecipeService.getRecipe(recipeId);
+            if (recipe) {
+                const imageId = await RecipesImagesService.getImageId(recipeId);
+                const imageUrl = await ImageService.getImageUrl(imageId);
+                return {
+                    _id: recipe._id,
+                    title: recipe.title,
+                    image: imageUrl
+                };
+            }
         }));
 
         // console.log(result);

@@ -17,6 +17,7 @@ const user_favorite_recipesSchema = new Schema ({
     }
 });
 
+user_favorite_recipesSchema.index({user_id: 1, recipe_id: 1}, {unique: true});
 const UserFavoriteRecipesModel = db.model('user_favorite_recipes', user_favorite_recipesSchema);
 
 module.exports = UserFavoriteRecipesModel;

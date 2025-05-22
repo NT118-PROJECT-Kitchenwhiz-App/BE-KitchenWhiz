@@ -16,7 +16,7 @@ class RecipesImagesService {
         }
     }
 
-    static async getImgageId(recipeId) {
+    static async getImageId(recipeId) {
         try {
             const item = await RecipesImagesModel.findOne({recipe_id: recipeId}).lean();
             if (item) return item.image_id;

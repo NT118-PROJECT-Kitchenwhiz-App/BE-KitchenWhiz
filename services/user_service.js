@@ -47,6 +47,18 @@ class UserService {
         }
     }
 
+    static async checkUserById(userId) {
+        try {
+            const user = await UserModel.findById(userId);
+            if (user) return user;
+            else return null;
+        }
+        catch (error) {
+            console.log(error);
+            return null;
+        }
+    }
+
     static async generateToken(tokenData, secretKey, jwt_expire) {
         return jwt.sign(tokenData, secretKey, {expiresIn:jwt_expire});
     }
