@@ -2,6 +2,9 @@ const { response } = require("express");
 const UserService = require("../services/user_service");
 const UserFavoriteRecipesService = require('../services/user_favorite_recipes_service');
 const UserViewedRecipesService = require('../services/user_viewed_recipes_service');
+const ImageService = require("../services/image_service");
+const RecipeService = require("../services/recipe_service");
+const RecipesImagesService = require("../services/recipes_images_service");
 const OtpCacheService = require("../services/otp_cache_service");
 const sendOtpEmail = require("../utilities/mailer");
 const mongoose = require('mongoose');
@@ -62,6 +65,7 @@ exports.login = async(req, res, next) => {
 
         res.status(200).json({
             status: true,
+            _id: user._id,
             email: user.email,
             username: user.username,
             token: token,
@@ -155,11 +159,63 @@ exports.vertifyOtp = async(req, res, next) => {
 
 // Add Favorite Recipe
 exports.addFavoriteRecipe = async(req, res, next) => {
-    let {userId, recipeId} = req.body;
-    userId = new mongoose.Types.ObjectId(userId);
-    recipeId = new mongoose.Types.ObjectId(recipeId);
+    try {
+        let {user_id, recipe_id} = req.body;
+        user_id = new mongoose.Types.ObjectId(user_id);
+        recipe_id = new mongoose.Types.ObjectId(recipe_id);
+        
+        if (!await UserService.checkUserById(user_id)) {
+            res.status(404).json({error: "User not found"});
+        }
 
-    const favoriteExisted = await UserFavoriteRecipesService.favoriteRecipeExisted(userId, recipeId);
-    
+        if (!await RecipeService.getRecipe(recipe_id)) {
+            res.status(404).json({error: "User not found"});
+        }
 
+        console.log(user_id);
+        const favoriteExisted = await UserFavoriteRecipesService.favoriteRecipeExisted(user_id, recipe_id);
+        if (!favoriteExisted) {
+            res.status(400).json({error: "Recipe already added"})
+        }
+
+        await UserFavoriteRecipesService.createFavoriteRecipe({user_id, recipe_id});
+        res.status(200).json({message: "Add favorite recipe successfully"});
+    }
+    catch (error) {
+        console.log("Add Favorite Recipe: ", error);
+        res.status(500).json({error: "Internal Server Error"});
+    }
+}
+
+// Get all favorite recipes for the user
+exports.getAllFavoriteRecipes = async(req, res, next) => {
+    try {
+        let {user_id} = req.query;
+
+        user_id = new mongoose.Types.ObjectId(user_id);
+
+        if (!await UserService.checkUserById(user_id)) {
+            res.status(404).json({error: "User not found"});
+        }
+
+        // Lay danh sach recipeIds
+        const recipeIds = await UserFavoriteRecipesService.getRecipeIdsByUserId(user_id);
+
+        const result = await Promise.all(recipeIds.map(async (recipeId) => {
+            const recipe = await RecipeService.getRecipe(recipeId);
+            const imageId = await RecipesImagesService.getImageId(recipeId);
+            const imageUrl = await ImageService.getImageUrl(imageId);
+            return {
+                _id: recipe._id,
+                title: recipe.title,
+                image: imageUrl
+            };
+        }));
+        
+        res.status(200).json(result);
+    }
+    catch (error) {
+        console.log("Get All Favorite Recipes Error: ", error);
+        res.status(500).json({error: "Internal Server Error"});
+    }
 }

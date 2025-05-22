@@ -109,11 +109,127 @@ router.post('/forgotPassword', UserController.forgotPassword);
 
 router.post('/resetPassword', UserController.resetPassword);
 
-// router.post('/addFavoriteRecipes', UserController.addFavoriteRecipe);
+/**
+ * @swagger
+ * /user/addFavoriteRecipes:
+ *   post:
+ *     summary: Add a favorite recipe for a user
+ *     tags:
+ *       - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - recipeId
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *                 example: "665e2d1c7b7d5a6f1d234567"
+ *               recipe_id:
+ *                 type: string
+ *                 example: "665e2d1c7b7d5a6f1d289012"
+ *     responses:
+ *       200:
+ *         description: Add favorite recipe successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Add favorite recipe successfully
+ *       400:
+ *         description: Recipe already added
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Had added before
+ *       404:
+ *         description: User or Recipe not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/addFavoriteRecipes', UserController.addFavoriteRecipe);
+
+/**
+ * @swagger
+ * /user/allFavoriteRecipes:
+ *   get:
+ *     summary: Get all favorite recipes of a user
+ *     tags:
+ *       - User
+ *     parameters:
+ *       - in: query
+ *         name: user_id
+ *         required: true
+ *         description: MongoDB ObjectId of the user
+ *         schema:
+ *           type: string
+ *           example: "662fa7d3cbe8f8a9e8c0d9f1"
+ *     responses:
+ *       200:
+ *         description: List of favorite recipes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     description: ID of the recipe
+ *                     example: "6630c4d5123e4c34a8f2b9d2"
+ *                   title:
+ *                     type: string
+ *                     description: Title of the recipe
+ *                     example: "Spaghetti Bolognese"
+ *                   image:
+ *                     type: string
+ *                     description: URL of the recipe's image
+ *                     example: "https://example.com/images/spaghetti.jpg"
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: User not found
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Internal Server Error
+ */
+router.get('/allFavoriteRecipes', UserController.getAllFavoriteRecipes);
+
 
 // router.post('/addViewedRecipes', UserController.addViewedRecipe);
-
-// router.get('/allFavoriteRecipes', UserController.allFavoriteRecipes);
 
 // router.get('/allViewRecipes', UserController.allViewedRecipes);
 
