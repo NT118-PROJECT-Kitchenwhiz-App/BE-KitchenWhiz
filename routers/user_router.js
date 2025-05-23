@@ -170,16 +170,16 @@ router.post('/addFavoriteRecipes', UserController.addFavoriteRecipe);
 
 /**
  * @swagger
- * /user/allFavoriteRecipes:
+ * /user/allFavoriteRecipes/{user_id}:
  *   get:
  *     summary: Get all favorite recipes of a user
  *     tags:
  *       - User
  *     parameters:
- *       - in: query
+ *       - in: path
  *         name: user_id
  *         required: true
- *         description: MongoDB ObjectId of the user
+ *         description: ID của người dùng
  *         schema:
  *           type: string
  *           example: "662fa7d3cbe8f8a9e8c0d9f1"
@@ -226,13 +226,77 @@ router.post('/addFavoriteRecipes', UserController.addFavoriteRecipe);
  *                   type: string
  *                   example: Internal Server Error
  */
-router.get('/allFavoriteRecipes', UserController.getAllFavoriteRecipes);
+router.get('/allFavoriteRecipes/:user_id', UserController.getAllFavoriteRecipes);
 
+
+/**
+ * @swagger
+ * /user/{user_id}/favoriteRecipe/{recipe_id}:
+ *   delete:
+ *     tags:
+ *       - User
+ *     summary: Delete a user's favorite recipe
+ *     description: Xóa công thức yêu thích của người dùng dựa vào user_id và recipe_id từ URL.
+ *     parameters:
+ *       - in: path
+ *         name: user_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của người dùng
+ *       - in: path
+ *         name: recipe_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của công thức cần xóa khỏi danh sách yêu thích
+ *     responses:
+ *       200:
+ *         description: Xóa thành công hoặc công thức đã bị xóa trước đó
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Removed favorite recipe successfully
+ *       404:
+ *         description: Không tìm thấy người dùng hoặc công thức
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: User not found
+ *       400:
+ *         description: Công thức yêu thích đã được loại bỏ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Recipe already removed
+ *       500:
+ *         description: Lỗi máy chủ nội bộ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Internal Server Error
+ */
+
+router.delete('/:user_id/favoriteRecipe/:recipe_id', UserController.deleteFavoriteRecipe);
 
 // router.post('/addViewedRecipes', UserController.addViewedRecipe);
 
 // router.get('/allViewRecipes', UserController.allViewedRecipes);
-
-// router.delete('/deletefavoriteRecipe', UserController.deleteFavoriteRecipe);
 
 module.exports = router;

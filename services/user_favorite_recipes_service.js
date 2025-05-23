@@ -42,6 +42,23 @@ class UserFavoriteRecipesService {
 
         return recipeIds;
     }
+
+    // Xoa mon an yeu thich dua tren recipe_id va user_id
+    static async deleteFavoriteRecipes(userId, recipeId) {
+
+        try {
+            const deletedRecipe = await UserFavoriteRecipesModel.findOneAndDelete({user_id: userId, recipe_id: recipeId});
+ 
+            if (deletedRecipe) {
+                return deletedRecipe;
+            }
+            return null;
+        }
+        catch (error) {
+            console.log(error);
+            throw new Error("Failed to delete favorite recipe");
+        }
+    }
 }
 
 module.exports = UserFavoriteRecipesService;
