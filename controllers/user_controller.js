@@ -165,17 +165,16 @@ exports.addFavoriteRecipe = async(req, res, next) => {
         recipe_id = new mongoose.Types.ObjectId(recipe_id);
         
         if (!await UserService.checkUserById(user_id)) {
-            res.status(404).json({error: "User not found"});
+            return res.status(404).json({error: "User not found"});
         }
 
         if (!await RecipeService.getRecipe(recipe_id)) {
-            res.status(404).json({error: "User not found"});
+            return res.status(404).json({error: "Recipe not found"});
         }
 
-        console.log(user_id);
         const favoriteExisted = await UserFavoriteRecipesService.favoriteRecipeExisted(user_id, recipe_id);
-        if (!favoriteExisted) {
-            res.status(400).json({error: "Recipe already added"})
+        if (favoriteExisted) {
+            return res.status(400).json({error: "Recipe already added"})
         }
 
         await UserFavoriteRecipesService.createFavoriteRecipe({user_id, recipe_id});
@@ -190,12 +189,13 @@ exports.addFavoriteRecipe = async(req, res, next) => {
 // Get all favorite recipes for the user
 exports.getAllFavoriteRecipes = async(req, res, next) => {
     try {
-        let {user_id} = req.query;
+        let {user_id} = req.params;
 
         user_id = new mongoose.Types.ObjectId(user_id);
 
+        console.log(user_id);
         if (!await UserService.checkUserById(user_id)) {
-            res.status(404).json({error: "User not found"});
+            return res.status(404).json({error: "User not found"});
         }
 
         // Lay danh sach recipeIds
@@ -216,6 +216,35 @@ exports.getAllFavoriteRecipes = async(req, res, next) => {
     }
     catch (error) {
         console.log("Get All Favorite Recipes Error: ", error);
+        res.status(500).json({error: "Internal Server Error"});
+    }
+}
+
+// Delete favorite recipe
+exports.deleteFavoriteRecipe = async (req, res, next) => {
+    try {
+
+        let {user_id, recipe_id} = req.params;
+        user_id = new mongoose.Types.ObjectId(user_id);
+        recipe_id = new mongoose.Types.ObjectId(recipe_id);
+
+        if (!await UserService.checkUserById(user_id)) {
+            return res.status(404).json({error: "User not found"});
+        }
+
+        if (!await RecipeService.getRecipe(recipe_id)) {
+            return res.status(404).json({error: "Recipe not found"});
+        }
+
+        if (!await UserFavoriteRecipesService.deleteFavoriteRecipes(user_id, recipe_id)) {
+            return res.status(400).json({message: "Recipe already removed"});
+        }
+    
+        res.status(200).json({message: "Remove favorite recipe successfully"});
+
+    }
+    catch (error) {
+        console.log("Delete Favorite Recipe Error: ", error);
         res.status(500).json({error: "Internal Server Error"});
     }
 }

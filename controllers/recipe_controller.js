@@ -89,7 +89,7 @@ exports.getRecipe = async (req, res, next) => {
             return res.status(404).json({message: "Recipe not found"});
 
         // 2. Lấy image_id từ recipes_images
-        const imageId = await RecipesImagesService.getImgageId(recipeId);
+        const imageId = await RecipesImagesService.getImageId(recipeId);
         
         // 3. Lấy image url từ images thông qua id
         const imageUrl = await ImageService.getImageUrl(imageId);
