@@ -98,6 +98,35 @@ class RecipeService {
             console.log("Recipe Service Error", error);
         }
     }
+
+    static async randomRecipe() {
+        try {
+            const count = await RecipeModel.countDocuments();
+            const randomIndex = Math.floor(Math.random() * count);
+
+            const randomRecipe = await RecipeModel.findOne().skip(randomIndex);
+
+            return randomRecipe;
+
+        }
+        catch (error) {
+            console.log("Random Recipe Error", error);
+        }
+    }
+
+    static async getLikeRecipes () {
+        try {
+            const recipes = await RecipeModel.find()
+                .sort({ likes: -1 }) // Sắp xếp giảm dần theo số lượt thích
+                .select("_id title likes"); // Chỉ lấy các trường _id, title, likes
+
+            return recipes;
+
+        }
+        catch (error) {
+            console.log("Get Like Recipes Service Error", error);
+        }
+    }
 }
 
 module.exports = RecipeService;

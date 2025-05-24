@@ -188,6 +188,88 @@ router.get('/searchByRecipe', RecipeController.searchByRecipe);
 
 /**
  * @swagger
+ * /recipe/randomRecipe:
+ *   get:
+ *     summary: Lấy một món ăn ngẫu nhiên
+ *     tags:
+ *       - Recipes
+ *     responses:
+ *       201:
+ *         description: Trả về một công thức món ăn ngẫu nhiên
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   example: 6653a1b8f2e3e6b0e32e94ab
+ *                 title:
+ *                   type: string
+ *                   example: Vietnamese Pho
+ *                 summary:
+ *                   type: string
+ *                   example: A traditional Vietnamese noodle soup with rich beef broth.
+ *                 image:
+ *                   type: string
+ *                   example: https://example.com/images/pho.jpg
+ *       500:
+ *         description: Lỗi máy chủ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Internal Server Error
+ */
+router.get('/randomRecipe', RecipeController.randomRecipe);
+
+/**
+ * @swagger
+ * /recipe/likeRecipes:
+ *   get:
+ *     summary: Lấy danh sách món ăn được nhiều người yêu thích
+ *     tags:
+ *       - Recipes
+ *     responses:
+ *       200:
+ *         description: Danh sách các công thức món ăn có nhiều lượt thích
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     example: 6653a1b8f2e3e6b0e32e94ab
+ *                   title:
+ *                     type: string
+ *                     example: Vietnamese Pho
+ *                   image:
+ *                     type: string
+ *                     example: https://example.com/images/pho.jpg
+ *                   likes:
+ *                     type: integer
+ *                     example: 124
+ *       500:
+ *         description: Lỗi máy chủ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Internal Server Error
+ */
+router.get('/likeRecipes', RecipeController.getLikeRecipes);
+
+/**
+ * @swagger
  * /recipe/{id}:
  *   get:
  *     summary: Lấy thông tin công thức theo ID

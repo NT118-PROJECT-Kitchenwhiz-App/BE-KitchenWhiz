@@ -195,3 +195,51 @@ exports.searchByRecipe = async(req, res, next) => {
         res.status(500).json({error: "Internal Server Error"});
     }
 }
+
+// Random mon an
+exports.randomRecipe = async (req, res, next) => {
+    try {
+        const recipe = await RecipeService.randomRecipe();
+
+        const imageId = await RecipesImagesService.getImageId(recipe._id);
+        const imageUrl = await ImageService.getImageUrl(imageId);
+
+        const result = {
+            _id: recipe._id,
+            title: recipe.title,
+            summary: recipe.summary,
+            image: imageUrl
+        }
+
+        res.status(201).json(result);
+    }
+    catch (error) {
+        console.log("Random Recipe Error: ", error);
+        res.status(500).json({error: "Internal Server Error"});
+    }
+}
+
+// Mon an co nhieu nguoi yeu thich
+exports.getLikeRecipes = async(req, res, next) => {
+    try {
+        const recipes = await RecipeService.getLikeRecipes();
+        const result = await Promise.all(recipes.map(async (recipe) => {
+            if (recipe) {
+                const imageId = await RecipesImagesService.getImageId(recipe._id);
+                const imageUrl = await ImageService.getImageUrl(imageId);
+                return {
+                    _id: recipe._id,
+                    title: recipe.title,
+                    image: imageUrl,
+                    likes: recipe.likes
+                };
+            }
+        }));
+
+        res.status(200).json(result);
+    }
+    catch (error) {
+        console.log("Like Recipes Error: ", error);
+        res.status(500).json({error: "Internal Server Error"});
+    }
+}
