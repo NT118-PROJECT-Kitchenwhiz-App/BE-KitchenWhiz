@@ -248,3 +248,78 @@ exports.deleteFavoriteRecipe = async (req, res, next) => {
         res.status(500).json({error: "Internal Server Error"});
     }
 }
+
+// Add viewed viewed recipe
+exports.addViewedRecipe = async (req, res, next) => {
+    try {
+        let {user_id, recipe_id} = req.body;
+
+        user_id = new mongoose.Types.ObjectId(user_id);
+        recipe_id = new mongoose.Types.ObjectId(recipe_id);
+
+        if (!await UserService.checkUserById(user_id)) {
+            return res.status(404).json({error: "User not found"});
+        }
+
+        if (!await RecipeService.getRecipe(recipe_id)) {
+            return res.status(404).json({error: "Recipe not found"});
+        }
+
+        let viewedRecipes = await UserViewedRecipesService.viewedRecipeExisted(user_id, recipe_id);
+        if (viewedRecipes) {
+            // Nếu đã xem, cập nhật thời gian
+            await UserViewedRecipesService.updateNewTimeView(user_id, recipe_id);
+            return res.status(200).json({ message: "Updated view time for recipe" });
+        } else {
+            // Nếu chưa xem, thêm mới
+            const newEntry = await UserViewedRecipesService.createViewedRecipe({ user_id, recipe_id });
+
+            if (!newEntry) {
+                return res.status(500).json({ error: "Failed to add viewed recipe" });
+            }
+            return res.status(201).json({ message: "Added new viewed recipe" });
+        }
+
+    }
+    catch (error) {
+        console.log("Delete Favorite Recipe Error: ", error);
+        res.status(500).json({error: "Internal Server Error"});
+    }
+}
+
+// Get All Viewed Recipe
+exports.getAllViewedRecipes = async(req, res, next) => {
+    try {
+        let {user_id} = req.params;
+
+        user_id = new mongoose.Types.ObjectId(user_id);
+
+        console.log(user_id);
+        if (!await UserService.checkUserById(user_id)) {
+            return res.status(404).json({error: "User not found"});
+        }
+
+        // Lay danh sach recipeIds
+        const recipeIds = await UserViewedRecipesService.getViewedRecipesByUserId(user_id);
+
+        const result = await Promise.all(recipeIds.map(async (recipeId) => {
+            const recipe = await RecipeService.getRecipe(recipeId.recipe_id);
+            const imageId = await RecipesImagesService.getImageId(recipeId.recipe_id);
+            const imageUrl = await ImageService.getImageUrl(imageId);
+            if (recipe) {
+                return {
+                _id: recipe._id,
+                title: recipe.title,
+                image: imageUrl,
+                view_at: recipeId.view_at
+            };
+            }
+        }));
+        
+        res.status(200).json(result);
+    }
+    catch (error) {
+        console.log("Get All Favorite Recipes Error: ", error);
+        res.status(500).json({error: "Internal Server Error"});
+    }
+}

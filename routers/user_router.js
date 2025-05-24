@@ -295,8 +295,135 @@ router.get('/allFavoriteRecipes/:user_id', UserController.getAllFavoriteRecipes)
 
 router.delete('/:user_id/favoriteRecipe/:recipe_id', UserController.deleteFavoriteRecipe);
 
-// router.post('/addViewedRecipes', UserController.addViewedRecipe);
+/**
+ * @swagger
+ * /user/addViewedRecipes:
+ *   post:
+ *     summary: Add or update a viewed recipe for a user
+ *     tags:
+ *       - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *                 example: "665a57b9c2a7b3f5448be119"
+ *                 description: MongoDB ObjectId of the user
+ *               recipe_id:
+ *                 type: string
+ *                 example: "665a5aa7c2a7b3f5448be21d"
+ *                 description: MongoDB ObjectId of the recipe
+ *             required:
+ *               - user_id
+ *               - recipe_id
+ *     responses:
+ *       200:
+ *         description: Successfully updated the view time of a recipe
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Updated view time for recipe
+ *       201:
+ *         description: Successfully added a new viewed recipe
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Added new viewed recipe
+ *       404:
+ *         description: User or Recipe not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: User not found
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Internal Server Error
+ */
 
-// router.get('/allViewRecipes', UserController.allViewedRecipes);
+router.post('/addViewedRecipes', UserController.addViewedRecipe);
+
+/**
+ * @swagger
+ * /user/allViewRecipes/{user_id}:
+ *   get:
+ *     summary: Get all viewed recipes by a user
+ *     tags:
+ *       - User
+ *     parameters:
+ *       - in: path
+ *         name: user_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: MongoDB ObjectId of the user
+ *         example: "665a57b9c2a7b3f5448be119"
+ *     responses:
+ *       200:
+ *         description: List of viewed recipes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     example: "665a5aa7c2a7b3f5448be21d"
+ *                   title:
+ *                     type: string
+ *                     example: "Delicious Pancakes"
+ *                   image:
+ *                     type: string
+ *                     example: "https://yourdomain.com/images/recipe1.jpg"
+ *                   view_at:
+ *                     type: string
+ *                     format: date-time
+ *                     example: "2024-05-23T14:30:00Z"
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "User not found"
+ *       500:
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Internal Server Error"
+ */
+router.get('/allViewRecipes/:user_id', UserController.getAllViewedRecipes);
 
 module.exports = router;

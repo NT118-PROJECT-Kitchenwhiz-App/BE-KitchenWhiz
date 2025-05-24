@@ -10,14 +10,18 @@ const user_viewed_recipesSchema = new Schema ({
         ref: "users",
         required: true
     },
-    recipe_id: {
+    viewed_recipes: [{
+        recipe_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "recipes",
         required: true
-    },
-    view_at: {
-        type: Date
-    }
+        },
+        view_at: {
+            type: Date,
+            require: true
+        }
+    }]
+
 });
 
 const UserViewedRecipesModel = db.model('user_viewed_recipes', user_viewed_recipesSchema);
