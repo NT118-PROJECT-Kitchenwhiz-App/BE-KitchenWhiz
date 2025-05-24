@@ -40,7 +40,7 @@ exports.addRecipe = async (req, res, next) => {
 
         console.log({title, servings, ready_in_minutes, summary, instructions});
         await RecipeService.createRecipe({title, servings, ready_in_minutes, summary, instructions});
-        const recipeId = await RecipeServie.getRecipeId(title);
+        const recipeId = await RecipeService.getRecipeId(title);
 
         
         // 4. Them ingredient vao database
