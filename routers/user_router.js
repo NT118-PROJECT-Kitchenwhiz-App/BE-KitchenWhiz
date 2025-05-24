@@ -115,7 +115,7 @@ router.post('/resetPassword', UserController.resetPassword);
  *   post:
  *     summary: Add a favorite recipe for a user
  *     tags:
- *       - User
+ *       - User_Recipes
  *     requestBody:
  *       required: true
  *       content:
@@ -174,7 +174,7 @@ router.post('/addFavoriteRecipes', UserController.addFavoriteRecipe);
  *   get:
  *     summary: Get all favorite recipes of a user
  *     tags:
- *       - User
+ *       - User_Recipes
  *     parameters:
  *       - in: path
  *         name: user_id
@@ -234,7 +234,7 @@ router.get('/allFavoriteRecipes/:user_id', UserController.getAllFavoriteRecipes)
  * /user/{user_id}/favoriteRecipe/{recipe_id}:
  *   delete:
  *     tags:
- *       - User
+ *       - User_Recipes
  *     summary: Delete a user's favorite recipe
  *     description: Xóa công thức yêu thích của người dùng dựa vào user_id và recipe_id từ URL.
  *     parameters:
@@ -301,7 +301,7 @@ router.delete('/:user_id/favoriteRecipe/:recipe_id', UserController.deleteFavori
  *   post:
  *     summary: Add or update a viewed recipe for a user
  *     tags:
- *       - User
+ *       - User_Recipes
  *     requestBody:
  *       required: true
  *       content:
@@ -371,7 +371,7 @@ router.post('/addViewedRecipes', UserController.addViewedRecipe);
  *   get:
  *     summary: Get all viewed recipes by a user
  *     tags:
- *       - User
+ *       - User_Recipes
  *     parameters:
  *       - in: path
  *         name: user_id

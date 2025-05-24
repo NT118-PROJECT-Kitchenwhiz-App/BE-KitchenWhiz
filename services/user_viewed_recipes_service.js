@@ -10,11 +10,11 @@ class UserViewedRecipesService {
             if (!userViewed) {
                 userViewed = new UserViewedRecipesModel({
                     user_id,
-                    viewed_recipes: [{recipe_id, view_at: new Date()}]
+                    viewed_recipes: [{recipe_id, view_at: new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" })}]
                 });
             }
             else {
-                userViewed.viewed_recipes.push({recipe_id, view_at: new Date()});
+                userViewed.viewed_recipes.push({recipe_id, view_at: new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" })});
             }
 
             return await userViewed.save();
@@ -59,7 +59,7 @@ class UserViewedRecipesService {
         try {
             const update = await UserViewedRecipesModel.updateOne(
                 { user_id: userId, "viewed_recipes.recipe_id": recipeId },
-                { $set: { "viewed_recipes.$.view_at": new Date() } }
+                { $set: { "viewed_recipes.$.view_at": new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }) } }
             );
             console.log(update);
         }
