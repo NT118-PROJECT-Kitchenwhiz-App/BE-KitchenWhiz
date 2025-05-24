@@ -50,6 +50,35 @@ class RecipeService {
             throw (error);
         }
     }
+
+    static async incrementLikes(recipeId) {
+        try {
+            const updated = await RecipeModel.findByIdAndUpdate(
+                recipeId,
+                { $inc: { likes: 1 } },
+                { new: true }
+            );
+            return updated;
+        } catch (error) {
+            throw new Error('Error incrementing likes: ' + error.message);
+        }
+    }
+
+    static async decrementLikes(recipeId) {
+    try {
+        const recipe = await RecipeModel.findById(recipeId);
+        if (!recipe) throw new Error('Recipe not found');
+
+        if (recipe.likes > 0) {
+            recipe.likes -= 1;
+            await recipe.save();
+        }
+
+        return recipe;
+    } catch (error) {
+        throw new Error('Error decrementing likes: ' + error.message);
+    }
+}
 }
 
 module.exports = RecipeService;

@@ -178,6 +178,7 @@ exports.addFavoriteRecipe = async(req, res, next) => {
         }
 
         await UserFavoriteRecipesService.createFavoriteRecipe({user_id, recipe_id});
+        await RecipeService.incrementLikes(recipe_id);
         res.status(200).json({message: "Add favorite recipe successfully"});
     }
     catch (error) {
@@ -207,7 +208,8 @@ exports.getAllFavoriteRecipes = async(req, res, next) => {
             return {
                 _id: recipe._id,
                 title: recipe.title,
-                image: imageUrl
+                image: imageUrl,
+                likes: recipe.likes
             };
         }));
         
@@ -237,6 +239,7 @@ exports.deleteFavoriteRecipe = async (req, res, next) => {
 
         if (await UserFavoriteRecipesService.favoriteRecipeExisted(user_id, recipe_id)) {
             await UserFavoriteRecipesService.deleteFavoriteRecipes(user_id, recipe_id);
+            await RecipeService.decrementLikes(recipe_id);
             return res.status(200).json({message: "Remove favorite recipe successfully"});
         }
         

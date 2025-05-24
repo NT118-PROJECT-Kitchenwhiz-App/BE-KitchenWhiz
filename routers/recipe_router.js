@@ -95,7 +95,7 @@ router.post('/addRecipe', upload.single('image'), RecipeController.addRecipe);
  *         required: true
  *         description: Tên thành phần (ingredient) cần tìm
  *     responses:
- *       200:
+ *       201:
  *         description: Danh sách món ăn chứa thành phần đó
  *         content:
  *           application/json:
@@ -179,6 +179,9 @@ router.get('/searchByIngredient', RecipeController.searchByIngredient);
  *                       unit:
  *                         type: string
  *                         example: pounds
+ *                 likes:
+ *                   type: integer
+ *                   example: 123
  *       404:
  *         description: Không tìm thấy công thức
  *         content:

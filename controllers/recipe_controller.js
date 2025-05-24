@@ -106,7 +106,8 @@ exports.getRecipe = async (req, res, next) => {
             ready_in_minutes: recipe.ready_in_minutes,
             summary: recipe.summary,
             instructions: recipe.instructions,
-            ingredients: ingredients
+            ingredients: ingredients,
+            likes: recipe.likes
         };
         res.status(201).json(finalResult);
     }
@@ -124,13 +125,19 @@ exports.searchByIngredient = async (req, res, next) => {
         if (!name) {
             return res.status(400).json({message: 'Ingredient name is require'});
         }
-        const ingredientId = await IngredientService.getIngredientId(name);
-        if (!ingredientId) {
+        const ingredients = await IngredientService.getIngredientsByName(name);
+        if (!ingredients) {
             return res.status(404).json({message: 'Ingredient not found'});
         }
 
-        const recipeIds = await RecipesIngredientsService.getRecipeIdsByIngredientId(ingredientId);
+        //const recipeIds = await RecipesIngredientsService.getRecipeIdsByIngredientId(ingredientId);
+        
+        const recipeIdsNested = await Promise.all(ingredients.map(async (ingredient) => {
  
+            return RecipesIngredientsService.getRecipeIdsByIngredientId(ingredient._id);
+        }));
+        const recipeIds = [...new Set(recipeIdsNested.flat().map(id => id.toString()))].map(id => new mongoose.Types.ObjectId(id));
+
         const result = await Promise.all(recipeIds.map(async (recipeId) => {
             const recipe = await RecipeService.getRecipe(recipeId);
             if (recipe) {

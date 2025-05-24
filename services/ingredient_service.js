@@ -11,15 +11,21 @@ class IngredientService {
         }
     }
 
-    static async getIngredientId(name) {
+    static async getIngredientsByName(name) {
         try {
-            const ingredient = await IngredientModel.findOne({name});
+            const ingredients = await IngredientModel.find({ 
+                name: { $regex: name, $options: 'i' } // Case-insensitive search
+            });
 
-            if (ingredient) return ingredient._id;
-            return null;
-        }
-        catch (error) {
-            throw error;
+            // Remove duplicate IDs using a Set
+            const uniqueIngredients = [...new Map(ingredients.map(ingredient => [ingredient._id.toString(), ingredient])).values()];
+
+            return uniqueIngredients.map(ingredient => ({
+                _id: ingredient._id,
+                name: ingredient.name
+            }));
+        } catch (error) {
+            console.log("Ingredient Service Error", error);
         }
     }
 

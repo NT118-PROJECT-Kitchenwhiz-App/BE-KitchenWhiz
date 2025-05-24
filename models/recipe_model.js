@@ -23,6 +23,10 @@ const recipeSchema = new Schema ({
     },
     instructions: {
         type: String,
+    },
+    likes: {
+        type: Number,
+        default: 0
     }
 });
 
