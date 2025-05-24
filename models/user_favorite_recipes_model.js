@@ -10,11 +10,11 @@ const user_favorite_recipesSchema = new Schema ({
         ref: "users",
         required: true
     },
-    recipe_id: {
+    favorite_recipes: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "recipes",
         required: true
-    }
+    }]
 });
 
 user_favorite_recipesSchema.index({user_id: 1, recipe_id: 1}, {unique: true});
