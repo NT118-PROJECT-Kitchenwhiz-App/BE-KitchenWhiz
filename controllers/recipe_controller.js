@@ -117,10 +117,11 @@ exports.getRecipe = async (req, res, next) => {
     }
 }
 
+
+// Tim kiem mon an theo thanh phan
 exports.searchByIngredient = async (req, res, next) => {
     try {
         const {name} = req.query;
-        console.log(req.query);
 
         if (!name) {
             return res.status(400).json({message: 'Ingredient name is require'});
@@ -129,8 +130,6 @@ exports.searchByIngredient = async (req, res, next) => {
         if (!ingredients) {
             return res.status(404).json({message: 'Ingredient not found'});
         }
-
-        //const recipeIds = await RecipesIngredientsService.getRecipeIdsByIngredientId(ingredientId);
         
         const recipeIdsNested = await Promise.all(ingredients.map(async (ingredient) => {
  
@@ -158,5 +157,41 @@ exports.searchByIngredient = async (req, res, next) => {
     catch (error) {
         console.error('Error search by ingredient:', error);
         res.status(500).json({error: 'Internal Server Error'});
+    }
+}
+
+// Tim kiem mon an theo
+exports.searchByRecipe = async(req, res, next) => {
+    try {
+        const {title} = req.query;
+
+        if (!title) {
+            res.status(400).json({message: "Recipe name is require"});
+        }
+        
+        console.log(title);
+        const recipes = await RecipeService.getRecipeByName(title);
+
+        if (!recipes) {
+            res.status(404).json({message: "Recipe not found"});
+        }
+
+        const result = await Promise.all(recipes.map(async (recipe) => {
+            if (recipe) {
+                const imageId = await RecipesImagesService.getImageId(recipe._id);
+                const imageUrl = await ImageService.getImageUrl(imageId);
+                return {
+                    _id: recipe._id,
+                    title: recipe.title,
+                    image: imageUrl
+                };
+            }
+        }));
+
+        res.status(201).json(result);
+    }
+    catch (error) {
+        console.log("Search By Recipe Error: ", error);
+        res.status(500).json({error: "Internal Server Error"});
     }
 }

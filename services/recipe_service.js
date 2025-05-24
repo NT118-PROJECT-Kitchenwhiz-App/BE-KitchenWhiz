@@ -65,20 +65,39 @@ class RecipeService {
     }
 
     static async decrementLikes(recipeId) {
-    try {
-        const recipe = await RecipeModel.findById(recipeId);
-        if (!recipe) throw new Error('Recipe not found');
+        try {
+            const recipe = await RecipeModel.findById(recipeId);
+            if (!recipe) throw new Error('Recipe not found');
 
-        if (recipe.likes > 0) {
-            recipe.likes -= 1;
-            await recipe.save();
+            if (recipe.likes > 0) {
+                recipe.likes -= 1;
+                await recipe.save();
+            }
+
+            return recipe;
+        } catch (error) {
+            throw new Error('Error decrementing likes: ' + error.message);
         }
-
-        return recipe;
-    } catch (error) {
-        throw new Error('Error decrementing likes: ' + error.message);
     }
-}
+ 
+    static async getRecipeByName(title) {
+        try {
+            const recipes = await RecipeModel.find({ 
+                title: { $regex: title, $options: 'i' } // Case-insensitive partial match
+            });
+
+            if (!recipes) return null;
+            // Remove duplicate IDs using a Map to store unique _id values
+            const uniqueRecipes = [...new Map(recipes.map(recipe => [recipe._id.toString(), recipe])).values()];
+
+            return uniqueRecipes.map(recipe => ({
+                _id: recipe._id,
+                title: recipe.title,
+            }));
+        } catch (error) {
+            console.log("Recipe Service Error", error);
+        }
+    }
 }
 
 module.exports = RecipeService;

@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const RecipeController = require("../controllers/recipe_controller");
 const upload = require("../middleware/multer");
+const RecipeService = require("../services/recipe_service");
 
 /**
  * @swagger
@@ -117,6 +118,73 @@ router.post('/addRecipe', upload.single('image'), RecipeController.addRecipe);
  */
 
 router.get('/searchByIngredient', RecipeController.searchByIngredient);
+
+/**
+ * @swagger
+ * /recipe/searchByRecipe:
+ *   get:
+ *     summary: Tìm kiếm món ăn theo tên
+ *     tags:
+ *       - Recipes
+ *     parameters:
+ *       - in: query
+ *         name: title
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Tên của món ăn cần tìm
+ *         example: Pho
+ *     responses:
+ *       201:
+ *         description: Danh sách các công thức phù hợp
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     example: 6653a1b8f2e3e6b0e32e94ab
+ *                   title:
+ *                     type: string
+ *                     example: Vietnamese Pho
+ *                   image:
+ *                     type: string
+ *                     example: https://example.com/images/pho.jpg
+ *       400:
+ *         description: Thiếu tên món ăn trong query
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Recipe name is require
+ *       404:
+ *         description: Không tìm thấy công thức phù hợp
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Recipe not found
+ *       500:
+ *         description: Lỗi máy chủ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Internal Server Error
+ */
+router.get('/searchByRecipe', RecipeController.searchByRecipe);
 
 /**
  * @swagger
