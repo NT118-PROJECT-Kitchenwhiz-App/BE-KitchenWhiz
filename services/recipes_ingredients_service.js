@@ -3,7 +3,7 @@ const IngredientService = require("../services/ingredient_service");
 const mongoose = require("mongoose");
 
 class RecipesIngredientsService {
-    static async createRecipesIngrident (data) {
+    static async createRecipesIngredient (data) {
         try {
             const {recipe_id, ingredient_id, amount, unit} = data;
             const newItem = new RecipesIngredientsModel({

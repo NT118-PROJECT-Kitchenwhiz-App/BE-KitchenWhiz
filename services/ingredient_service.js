@@ -29,9 +29,25 @@ class IngredientService {
         }
     }
 
+    static async getIngredientId(name) {
+        try {
+            const ingredient = await IngredientModel.findOne({name});
+            if (ingredient) return ingredient._id;
+            else return null;
+        }
+        catch (error) {
+            console.log("Get Ingredient Id Error: ", error);
+        }
+    }
+
     static async isIngredientExisted(name) {
-        const id = await this.getIngredientId(name);
-        return id !== null;
+        try {
+            const id = await this.getIngredientId(name);
+            return id !== null;
+        }
+        catch (error) {
+            console.log("Is Ingredient Existed Error: ", error);
+        }
     }
 
     static async getIngredient(ingredientId) {

@@ -12,7 +12,7 @@ exports.addRecipe = async (req, res, next) => {
     try {
         // 1. Lay thong tin
         const { recipeInfo } = req.body;
-        const parsedRecipeInfo = JSON.parse(recipeInfo); // 👈 Parse string to object
+        const parsedRecipeInfo = JSON.parse(recipeInfo);
 
         const { 
             title, 
@@ -55,7 +55,7 @@ exports.addRecipe = async (req, res, next) => {
 
                 const ingredientId = await IngredientService.getIngredientId(name);
 
-                await RecipesIngredientsService.createRecipesIngrident({
+                await RecipesIngredientsService.createRecipesIngredient({
                     recipe_id: recipeId,
                     ingredient_id: ingredientId,
                     amount,
@@ -68,7 +68,7 @@ exports.addRecipe = async (req, res, next) => {
         // 5. Them recipes_images
         await RecipesImagesService.createRecipeImage({recipe_id: recipeId, image_id: imageId});
 
-        res.status(201).json({messege: "Add recipe successful"});
+        res.status(201).json({message: "Add recipe successful"});
     }
     catch (error) {
         console.error('Error creating recipe:', error);
@@ -109,7 +109,7 @@ exports.getRecipe = async (req, res, next) => {
             ingredients: ingredients,
             likes: recipe.likes
         };
-        res.status(201).json(finalResult);
+        res.status(200).json(finalResult);
     }
     catch (error) {
         console.error("Error get recipe: ", error);
@@ -151,7 +151,7 @@ exports.searchByIngredient = async (req, res, next) => {
         }));
 
         // console.log(result);
-        res.status(201).json(result);
+        res.status(200).json(result);
 
     }
     catch (error) {
@@ -168,8 +168,7 @@ exports.searchByRecipe = async(req, res, next) => {
         if (!title) {
             res.status(400).json({message: "Recipe name is require"});
         }
-        
-        console.log(title);
+
         const recipes = await RecipeService.getRecipeByName(title);
 
         if (!recipes) {
@@ -188,7 +187,7 @@ exports.searchByRecipe = async(req, res, next) => {
             }
         }));
 
-        res.status(201).json(result);
+        res.status(200).json(result);
     }
     catch (error) {
         console.log("Search By Recipe Error: ", error);
@@ -211,7 +210,7 @@ exports.randomRecipe = async (req, res, next) => {
             image: imageUrl
         }
 
-        res.status(201).json(result);
+        res.status(200).json(result);
     }
     catch (error) {
         console.log("Random Recipe Error: ", error);

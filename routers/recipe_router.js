@@ -96,7 +96,7 @@ router.post('/addRecipe', upload.single('image'), RecipeController.addRecipe);
  *         required: true
  *         description: Tên thành phần (ingredient) cần tìm
  *     responses:
- *       201:
+ *       200:
  *         description: Danh sách món ăn chứa thành phần đó
  *         content:
  *           application/json:
@@ -135,7 +135,7 @@ router.get('/searchByIngredient', RecipeController.searchByIngredient);
  *         description: Tên của món ăn cần tìm
  *         example: Pho
  *     responses:
- *       201:
+ *       200:
  *         description: Danh sách các công thức phù hợp
  *         content:
  *           application/json:
@@ -194,7 +194,7 @@ router.get('/searchByRecipe', RecipeController.searchByRecipe);
  *     tags:
  *       - Recipes
  *     responses:
- *       201:
+ *       200:
  *         description: Trả về một công thức món ăn ngẫu nhiên
  *         content:
  *           application/json:
