@@ -8,20 +8,22 @@ const RecipesImagesService = require("../services/recipes_images_service");
 const OtpCacheService = require("../services/otp_cache_service");
 const sendOtpEmail = require("../utilities/mailer");
 const mongoose = require('mongoose');
+const AuthService = require("../services/auth_service");
+require('dotenv').config();
 
-// Registation API
+// Registration API
 exports.register = async(req, res, next) => {
     try {
         const {email, username, password} = req.body;
 
         const existingEmailUser = await UserService.checkUser(email);
         if (existingEmailUser) {
-            return res.status(400).json({ status: false, message: "Email is already registered." });
+            return res.status(400).json({message: "Email is already registered." });
         }
 
         const existingUsernameUser = await UserService.checkUser(username);
         if (existingUsernameUser) {
-            return res.status(400).json({ status: false, message: "Username is already taken." });
+            return res.status(400).json({message: "Username is already taken." });
         }
 
         // 1. Generate OTP
@@ -33,10 +35,11 @@ exports.register = async(req, res, next) => {
         // 3. Send OTP via email
         await sendOtpEmail(email, otpCode);
 
-        res.json({status: true, success: "User Registered. Please verify OTP sent to your email."});
+        res.status(200).json({success: "User Registered. Please verify OTP sent to your email."});
     }
     catch (error) {
-        next(error);
+        console.log("Registration User Error: ", error);
+        res.status(500).json({error: "Internal Server Error"});
     }
 }
 
@@ -51,29 +54,39 @@ exports.login = async(req, res, next) => {
             throw new Error("User don't exist");
         }
 
-        const isMatch = await user.comparePassword(password);
+        const isMatch = await UserService.checkPassword(user._id, password);
         if (isMatch === false) {
-            throw new Error("Password don't correnct");
+            return res.status(400).json({message: "Password incorrect"});
         }
         
-        let tokenData = {_id:user._id, email: user.email};
+        let tokenData = {userId: user._id};
 
-        const token = await UserService.generateToken(tokenData, "secretKey", '1h');
+        const accessToken = await AuthService.generateToken(
+            tokenData, 
+            process.env.ACCESS_TOKEN_SECRET, 
+            "15m"
+        );
 
-        // Refresh token (expires in 7 days)
-        const refreshToken = await UserService.generateToken(tokenData, "secretKey", '7d');
+        const refreshToken = await AuthService.generateToken(
+            tokenData,
+            process.env.REFRESH_TOKEN_SECRET,
+            "7d"
+        );
 
-        res.status(200).json({
+        await UserService.updateRefreshToken(user._id, refreshToken);
+        
+        res.status(201).json({
             status: true,
             _id: user._id,
             email: user.email,
             username: user.username,
-            token: token,
+            accessToken: accessToken,
             refreshToken: refreshToken
         });
     }
     catch (error) {
-        throw error; 
+        console.log("Login User Error: ", error);
+        res.status(500).json({error: "Internal Server Error"});
     } 
 }
 
@@ -82,10 +95,10 @@ exports.forgotPassword = async (req, res, next) => {
     try {
         const {email} = req.body;
 
-        // 1. Check user is esxited
+        // 1. Check user is exited
         const user = await UserService.checkUser(email);
         if (!user) {
-            return res.status(404).json({status: false, message: "User not found."});
+            return res.status(404).json({message: "User not found."});
         }
 
         // 2. Generate OTP
@@ -100,7 +113,8 @@ exports.forgotPassword = async (req, res, next) => {
         res.json({status: true, success: "User Forgot Password. Please verify OTP sent to your email."});
     }
     catch (error) {
-        next(error);
+        console.log("Forgot Password Error: ", error);
+        res.status(500).json({error: "Internal Server Error"});
     }
 }
 
@@ -111,49 +125,111 @@ exports.resetPassword = async (req, res, next) => {
 
         await UserService.updatePassword(email, newPassword);
         
-        res.json({status: true, message: "Password reset successfully"});
-
+        res.status(201).json({message: "Password reset successfully"});
     }
     catch (error) {
-        next(error);
+        console.log("Reset Password Error: ", error);
+        res.status(500).json({error: "Internal Server Error"});
     }
 }
 
-// Vertify API
-exports.vertifyOtp = async(req, res, next) => {
+// Verify API
+exports.verifyOtp = async (req, res, next) => {
     try {
-        const {email, otpCode} = req.body;
+        const { email, otpCode } = req.body;
 
-        // 1. Get user info + OTP from cache
+        // Lấy thông tin người dùng và OTP từ bộ nhớ đệm
         const cachedData = await OtpCacheService.getOtp(email);
 
         if (!cachedData) {
-            return res.status(400).json({status: false, message: "OTP expired or invalid"});
+            return res.status(400).json({ message: "OTP expired or invalid" });
         }
 
         if (cachedData.otpCode.toString() !== otpCode.toString()) {
-            return res.status(400).json({status: false, message: "Incorrect OTP"});
-        } 
-
-        // 2. Save user to database if action is register
-        if (cachedData.action === "register") {
-            const {username, password} = cachedData;
-            await UserService.registerUser(email, username, password);
-            res.json({status: true, message: "OTP Verified and User Registered Successfully"});
-        }
-        else if (cachedData.action === "forgotPassword") {
-            res.json({ status: true, message: "OTP Verified and please send new password" });
-        }
-        else {
-            return res.status(400).json({ status: false, message: "Invalid action type" });
+            return res.status(400).json({ message: "Incorrect OTP" });
         }
 
-        // 3. Delete cache after successful vertification
+        let responseMessage = "OTP Verified";
+
+        // Xử lý hành động theo loại yêu cầu
+        switch (cachedData.action) {
+            case "register":
+                const { username, password } = cachedData;
+                await UserService.registerUser(email, username, password);
+                responseMessage += " and User Registered Successfully";
+                break;
+
+            case "forgotPassword":
+                responseMessage += " and please send new password";
+                break;
+
+            default:
+                return res.status(400).json({ message: "Invalid action type" });
+        }
+
+        // Xóa OTP khỏi bộ nhớ đệm sau khi xác minh thành công
         await OtpCacheService.deleteOtp(email);
-        res.json({status: true, message: "OTP Verified and User Registered Successfully"});
+
+        res.status(201).json({ message: responseMessage });
+    } catch (error) {
+        console.error("Verify OTP Error:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+exports.refreshAccessToken = async (req, res) => {
+    try {
+        const { refreshToken } = req.body;
+
+        if (!refreshToken) {
+            return res.status(401).json({ message: "Refresh Token is required" });
+        }
+
+        const user = await AuthService.verifyRefreshToken(refreshToken);
+
+        if (!user) {
+            return res.status(403).json({ message: "Invalid Refresh Token" });
+        }
+
+        const tokenData = { userId: user._id };
+        const newAccessToken = await AuthService.generateToken(
+            tokenData,
+            process.env.ACCESS_TOKEN_SECRET,
+            "15m"
+        );
+
+        res.status(200).json({
+            accessToken: newAccessToken
+        });
+
+    } catch (error) {
+        console.log("Refresh Access Token Error: ", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+exports.logout = async (req, res) => {
+    try {
+        const {refreshToken} = req.body;
+
+        if (!refreshToken) {
+            return res.status(400).json({message: "Refresh Token is required"});
+        }
+
+        const user = await UserService.getUserByRefreshToken(refreshToken);
+
+        if (!user) {
+            return res.status(200).json({ message: "User already logged out or token invalid" });
+        }
+
+        const deleteRefreshToken = "";
+        await UserService.updateRefreshToken(user._id, deleteRefreshToken);
+
+        return res.status(200).json({ message: "Logged out successfully" });
     }
     catch (error) {
-        next(error);
+        console.log("Logout Error: ", error);
+        res.status(500).json({error: "Internal Server Error"});
     }
 }
 
