@@ -1,6 +1,5 @@
 const UserModel = require("../models/user_model");
 const jwt = require("jsonwebtoken");
-const cache = require("../utilities/cache");
 
 class UserService {
 
@@ -10,7 +9,7 @@ class UserService {
             return await createUser.save();
         } 
         catch (err) {
-            throw err;
+            console.log("Register User Service Error: ", error);
         }
     }
 
@@ -24,7 +23,38 @@ class UserService {
             await user.save();
         }
         catch (error) {
-            throw error;
+            console.log("Update Password Service Error:", error);
+        }
+    }
+
+    static async checkPassword(userId, password) {
+        try {
+            const user = await UserModel.findById(userId);
+            if (!user) {
+                console.log("Check Password Error: User not found");
+                return false;
+            }
+
+            const isMatch = await user.comparePassword(password);
+            return isMatch;
+        } catch (error) {
+            console.log("Check Password Error:", error);
+        }
+    }
+
+    static async updateRefreshToken(userId, newRefreshToken) {
+        try {
+            const user = await UserModel.findOne({_id: userId});
+            if (!user) {
+                console.log("Update Refresh Token Error: User not found");
+            }
+            else {
+                user.refreshToken = newRefreshToken;
+                await user.save();
+            }
+        }
+        catch (error) {
+            console.log("Update Refresh Token Error: ", error);
         }
     }
 
@@ -43,7 +73,7 @@ class UserService {
             return user;
         }
         catch (error) {
-            throw error;
+            console.log("Check User Service Error: ", error);
         }
     }
 
@@ -54,13 +84,20 @@ class UserService {
             else return null;
         }
         catch (error) {
-            console.log(error);
+            console.log("Check User By Id Service Error: ", error);
             return null;
         }
     }
 
-    static async generateToken(tokenData, secretKey, jwt_expire) {
-        return jwt.sign(tokenData, secretKey, {expiresIn:jwt_expire});
+    static async getUserByRefreshToken(refreshToken) {
+        try {
+            const user = await UserModel.findOne({refreshToken: refreshToken});
+            if (!user) return null;
+            return user;
+        }
+        catch (error) {
+            console.log("Get user by refreshToken Error: ", error);
+        }
     }
 }
 

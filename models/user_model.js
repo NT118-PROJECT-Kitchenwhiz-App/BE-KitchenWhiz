@@ -24,25 +24,28 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
-    token: String,
-    refreshToken: String
+    refreshToken: {
+        type: String,
+        default: ""
+    }
 });
 
-userSchema.pre("save", async function() {
+userSchema.pre("save", async function(next) {
     try {
-        var user = this;
-        const salt = await(bcrypt.genSalt(10));
-        const hashpass = await bcrypt.hash(user.password, salt);
-        user.password = hashpass;
-    }
-    catch (error) {
-        throw error;
+        if (!this.isModified("password")) return next(); // ❗ Chỉ hash khi password thay đổi
+
+        const salt = await bcrypt.genSalt(10);
+        const hashPass = await bcrypt.hash(this.password, salt);
+        this.password = hashPass;
+        next();
+    } catch (error) {
+        next(error);
     }
 });
 
 userSchema.methods.comparePassword = async function (userPassword) {
     try {
-        const isMatch = await bcrypt.compareSync(userPassword, this.password);
+        const isMatch = await bcrypt.compare(userPassword, this.password);
         return isMatch;
     }
     catch (error) {
