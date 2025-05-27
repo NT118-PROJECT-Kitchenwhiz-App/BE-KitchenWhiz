@@ -127,6 +127,16 @@ router.post('/registration', UserController.register);
  *                 message:
  *                   type: string
  *                   example: Password incorrect
+ *       404:
+ *         description: Không tìm thấy User
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User Not Found
  *       500:
  *         description: Lỗi server
  *         content:
