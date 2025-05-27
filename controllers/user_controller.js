@@ -51,7 +51,7 @@ exports.login = async(req, res, next) => {
         const user = await UserService.checkUser(login);
 
         if (!user) {
-            throw new Error("User don't exist");
+            return res.status(404).json({message: "User Not Found"});
         }
 
         const isMatch = await UserService.checkPassword(user._id, password);
