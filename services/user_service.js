@@ -1,5 +1,4 @@
 const UserModel = require("../models/user_model");
-const jwt = require("jsonwebtoken");
 
 class UserService {
 
@@ -97,6 +96,18 @@ class UserService {
         }
         catch (error) {
             console.log("Get user by refreshToken Error: ", error);
+        }
+    }
+
+    static async updateAvatar(userId, avatarUrl) {
+        try {
+            const user = await UserModel.findOne({_id: userId});
+
+            user.avatar_url = avatarUrl;
+            return await user.save();
+        }
+        catch (error) {
+            console.log("Update avatar Service Error: ", error);
         }
     }
 }

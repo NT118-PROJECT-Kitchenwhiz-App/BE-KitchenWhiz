@@ -27,12 +27,13 @@ const userSchema = new Schema({
     refreshToken: {
         type: String,
         default: ""
-    }
+    },
+    avatar_url: String
 });
 
 userSchema.pre("save", async function(next) {
     try {
-        if (!this.isModified("password")) return next(); // ❗ Chỉ hash khi password thay đổi
+        if (!this.isModified("password")) return next(); // Chỉ hash khi password thay đổi
 
         const salt = await bcrypt.genSalt(10);
         const hashPass = await bcrypt.hash(this.password, salt);

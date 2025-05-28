@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const RecipeController = require("../controllers/recipe_controller");
 const upload = require("../middleware/multer");
-const RecipeService = require("../services/recipe_service");
 
 /**
  * @swagger
