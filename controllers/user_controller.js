@@ -9,6 +9,8 @@ const OtpCacheService = require("../services/otp_cache_service");
 const sendOtpEmail = require("../utilities/mailer");
 const mongoose = require('mongoose');
 const AuthService = require("../services/auth_service");
+
+const {uploadImage} = require("../utilities/cloudinary");
 require('dotenv').config();
 
 // Registration API
@@ -177,6 +179,7 @@ exports.verifyOtp = async (req, res, next) => {
     }
 }
 
+// Refresh Access Token
 exports.refreshAccessToken = async (req, res) => {
     try {
         const { refreshToken } = req.body;
@@ -208,6 +211,7 @@ exports.refreshAccessToken = async (req, res) => {
     }
 };
 
+// Logout
 exports.logout = async (req, res) => {
     try {
         const {refreshToken} = req.body;
@@ -233,6 +237,40 @@ exports.logout = async (req, res) => {
     }
 }
 
+// Update Avatar
+exports.updateAvatar = async (req, res) => {
+    try {
+        const imageFile = req.file;
+        let {userId} = req.body;
+        
+        userId = new mongoose.Types.ObjectId(userId);
+
+        if (!imageFile) {
+            return res.status(400).json({ message: 'Image is required' });
+        }   
+        
+        const uploadResult = await uploadImage(imageFile.path);
+
+        const imageUrl = uploadResult.secure_url.toString();
+
+        const user = await UserService.checkUserById(userId);
+
+        if (!user) {
+            return res.status(404).json({message: "User Not Found"});
+        }
+
+        const userUpdate = await UserService.updateAvatar(userId, imageUrl);
+
+        res.status(201).json({
+            avatar_url: userUpdate.avatar_url
+        });
+
+    }
+    catch (error) {
+        console.log("Update Avatar Controller Error: ", error);
+        res.status(500).json({error: "Internal Server Error"});
+    }
+}
 // Add Favorite Recipe
 exports.addFavoriteRecipe = async(req, res, next) => {
     try {

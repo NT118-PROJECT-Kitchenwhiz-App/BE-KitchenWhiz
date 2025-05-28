@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const UserController = require("../controllers/user_controller");
-
+const upload = require("../middleware/multer");
 /**
  * @swagger
  * tags:
@@ -151,6 +151,75 @@ router.post('/registration', UserController.register);
 
 router.post('/login', UserController.login);
 
+/**
+ * @swagger
+ * /user/updateAvatar:
+ *   post:
+ *     summary: Update user avatar image
+ *     tags:
+ *       - User
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - image
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: User ID to update avatar for
+ *                 example: "6421b7e0f9a1c23c4d5e6789"
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Image file to upload as avatar
+ *     responses:
+ *       201:
+ *         description: Avatar updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 avatar_url:
+ *                   type: string
+ *                   format: uri
+ *                   example: "https://res.cloudinary.com/demo/image/upload/v1612345678/avatar.jpg"
+ *       400:
+ *         description: Image is required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Image is required"
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "User Not Found"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Internal Server Error"
+ */
+router.post('/updateAvatar', upload.single('image'), UserController.updateAvatar);
 /**
  * @swagger
  * /user/verifyOtp:
