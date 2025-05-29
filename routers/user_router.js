@@ -120,7 +120,11 @@ router.post('/registration', UserController.register);
  *                   description: Token để lấy access token mới khi hết hạn
  *                 accessTokenExpire:
  *                   type: string
- *                   example: 15m                 
+ *                   example: 15m  
+ *                 avatar_url:
+ *                   type: string
+ *                   format: uri
+ *                   example: "https://res.cloudinary.com/demo/image/upload/v1612345678/avatar.jpg"   
  *       400:
  *         description: Sai thông tin đăng nhập
  *         content:
