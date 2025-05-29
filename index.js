@@ -1,7 +1,5 @@
 require("dotenv").config();
 const app = require("./app");
-const db = require("./config/database");
-const UserModel = require("./models/user_model")
 
 
 const port = process.env.PORT;

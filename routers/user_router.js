@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const UserController = require("../controllers/user_controller");
 const upload = require("../middleware/multer");
+const authenticateToken = require("../middleware/auth");
 /**
  * @swagger
  * tags:
@@ -155,9 +156,12 @@ router.post('/login', UserController.login);
  * @swagger
  * /user/updateAvatar:
  *   post:
- *     summary: Update user avatar image
+ *     summary: Cập nhật ảnh đại diện người dùng
+ *     description: Upload ảnh đại diện mới cho người dùng đã đăng nhập. Yêu cầu xác thực bằng access token và gửi ảnh dưới dạng multipart/form-data.
  *     tags:
  *       - User
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -165,20 +169,15 @@ router.post('/login', UserController.login);
  *           schema:
  *             type: object
  *             required:
- *               - userId
  *               - image
  *             properties:
- *               userId:
- *                 type: string
- *                 description: User ID to update avatar for
- *                 example: "6421b7e0f9a1c23c4d5e6789"
  *               image:
  *                 type: string
  *                 format: binary
- *                 description: Image file to upload as avatar
+ *                 description: Ảnh đại diện mới (file hình ảnh)
  *     responses:
  *       201:
- *         description: Avatar updated successfully
+ *         description: Cập nhật ảnh đại diện thành công
  *         content:
  *           application/json:
  *             schema:
@@ -189,7 +188,7 @@ router.post('/login', UserController.login);
  *                   format: uri
  *                   example: "https://res.cloudinary.com/demo/image/upload/v1612345678/avatar.jpg"
  *       400:
- *         description: Image is required
+ *         description: Thiếu ảnh đại diện trong request
  *         content:
  *           application/json:
  *             schema:
@@ -199,7 +198,7 @@ router.post('/login', UserController.login);
  *                   type: string
  *                   example: "Image is required"
  *       404:
- *         description: User not found
+ *         description: Không tìm thấy người dùng
  *         content:
  *           application/json:
  *             schema:
@@ -209,7 +208,7 @@ router.post('/login', UserController.login);
  *                   type: string
  *                   example: "User Not Found"
  *       500:
- *         description: Internal server error
+ *         description: Lỗi server nội bộ
  *         content:
  *           application/json:
  *             schema:
@@ -219,7 +218,7 @@ router.post('/login', UserController.login);
  *                   type: string
  *                   example: "Internal Server Error"
  */
-router.post('/updateAvatar', upload.single('image'), UserController.updateAvatar);
+router.post('/updateAvatar', upload.single('image'), authenticateToken, UserController.updateAvatar);
 /**
  * @swagger
  * /user/verifyOtp:
@@ -446,9 +445,11 @@ router.post('/refreshAccessToken', UserController.refreshAccessToken);
  * @swagger
  * /user/logout:
  *   post:
- *     summary: Đăng xuất
- *     description: Xóa refresh token để đăng xuất người dùng.
+ *     summary: Đăng xuất người dùng
+ *     description: Đăng xuất người dùng bằng cách xóa refresh token khỏi server và yêu cầu access token hợp lệ qua header Authorization.
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -460,6 +461,7 @@ router.post('/refreshAccessToken', UserController.refreshAccessToken);
  *             properties:
  *               refreshToken:
  *                 type: string
+ *                 description: Refresh token để hủy bỏ đăng nhập
  *                 example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  *     responses:
  *       200:
@@ -482,6 +484,16 @@ router.post('/refreshAccessToken', UserController.refreshAccessToken);
  *                 message:
  *                   type: string
  *                   example: Refresh Token is required
+ *       401:
+ *         description: Không có hoặc token không hợp lệ trong Authorization header
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized
  *       500:
  *         description: Lỗi server nội bộ
  *         content:
@@ -493,15 +505,17 @@ router.post('/refreshAccessToken', UserController.refreshAccessToken);
  *                   type: string
  *                   example: Internal Server Error
  */
-router.post('/logout', UserController.logout);
+router.post('/logout', authenticateToken, UserController.logout);
 
 /**
  * @swagger
  * /user/addFavoriteRecipes:
  *   post:
- *     summary: Add a favorite recipe for a user
+ *     summary: Add a favorite recipe for the authenticated user
  *     tags:
  *       - User_Recipes
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -509,12 +523,8 @@ router.post('/logout', UserController.logout);
  *           schema:
  *             type: object
  *             required:
- *               - userId
- *               - recipeId
+ *               - recipe_id
  *             properties:
- *               user_id:
- *                 type: string
- *                 example: "665e2d1c7b7d5a6f1d234567"
  *               recipe_id:
  *                 type: string
  *                 example: "665e2d1c7b7d5a6f1d289012"
@@ -539,8 +549,8 @@ router.post('/logout', UserController.logout);
  *                 error:
  *                   type: string
  *                   example: Had added before
- *       404:
- *         description: User or Recipe not found
+ *       401:
+ *         description: Unauthorized - Missing or invalid token
  *         content:
  *           application/json:
  *             schema:
@@ -548,27 +558,31 @@ router.post('/logout', UserController.logout);
  *               properties:
  *                 error:
  *                   type: string
- *                   example: User not found
+ *                   example: Unauthorized
+ *       404:
+ *         description: Recipe not found or user not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Recipe not found
  *       500:
  *         description: Internal server error
  */
-router.post('/addFavoriteRecipes', UserController.addFavoriteRecipe);
+router.post('/addFavoriteRecipes', authenticateToken, UserController.addFavoriteRecipe);
 
 /**
  * @swagger
- * /user/allFavoriteRecipes/{user_id}:
+ * /user/allFavoriteRecipes:
  *   get:
- *     summary: Get all favorite recipes of a user
+ *     summary: Get all favorite recipes of the authenticated user
  *     tags:
  *       - User_Recipes
- *     parameters:
- *       - in: path
- *         name: user_id
- *         required: true
- *         description: ID của người dùng
- *         schema:
- *           type: string
- *           example: "662fa7d3cbe8f8a9e8c0d9f1"
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of favorite recipes
@@ -591,6 +605,16 @@ router.post('/addFavoriteRecipes', UserController.addFavoriteRecipe);
  *                     type: string
  *                     description: URL of the recipe's image
  *                     example: "https://example.com/images/spaghetti.jpg"
+ *       401:
+ *         description: Unauthorized - Missing or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Unauthorized
  *       404:
  *         description: User not found
  *         content:
@@ -612,24 +636,21 @@ router.post('/addFavoriteRecipes', UserController.addFavoriteRecipe);
  *                   type: string
  *                   example: Internal Server Error
  */
-router.get('/allFavoriteRecipes/:user_id', UserController.getAllFavoriteRecipes);
+
+router.get('/allFavoriteRecipes/', authenticateToken, UserController.getAllFavoriteRecipes);
 
 
 /**
  * @swagger
- * /user/{user_id}/favoriteRecipe/{recipe_id}:
+ * /user/favoriteRecipe/{recipe_id}:
  *   delete:
  *     tags:
  *       - User_Recipes
- *     summary: Delete a user's favorite recipe
- *     description: Xóa công thức yêu thích của người dùng dựa vào user_id và recipe_id từ URL.
+ *     summary: Delete a favorite recipe of the authenticated user
+ *     description: Xóa công thức yêu thích của người dùng hiện tại, xác định qua token.
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
- *       - in: path
- *         name: user_id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID của người dùng
  *       - in: path
  *         name: recipe_id
  *         required: true
@@ -647,16 +668,6 @@ router.get('/allFavoriteRecipes/:user_id', UserController.getAllFavoriteRecipes)
  *                 message:
  *                   type: string
  *                   example: Removed favorite recipe successfully
- *       404:
- *         description: Không tìm thấy người dùng hoặc công thức
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: User not found
  *       400:
  *         description: Công thức yêu thích đã được loại bỏ
  *         content:
@@ -667,6 +678,26 @@ router.get('/allFavoriteRecipes/:user_id', UserController.getAllFavoriteRecipes)
  *                 error:
  *                   type: string
  *                   example: Recipe already removed
+ *       401:
+ *         description: Unauthorized - Thiếu hoặc token không hợp lệ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Unauthorized
+ *       404:
+ *         description: Không tìm thấy người dùng hoặc công thức
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Recipe not found
  *       500:
  *         description: Lỗi máy chủ nội bộ
  *         content:
@@ -679,33 +710,30 @@ router.get('/allFavoriteRecipes/:user_id', UserController.getAllFavoriteRecipes)
  *                   example: Internal Server Error
  */
 
-router.delete('/:user_id/favoriteRecipe/:recipe_id', UserController.deleteFavoriteRecipe);
+router.delete('/favoriteRecipe/:recipe_id', authenticateToken, UserController.deleteFavoriteRecipe);
 
 /**
  * @swagger
  * /user/addViewedRecipes:
  *   post:
- *     summary: Add or update a viewed recipe for a user
+ *     summary: Add or update a viewed recipe for the authenticated user
  *     tags:
  *       - User_Recipes
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - recipe_id
  *             properties:
- *               user_id:
- *                 type: string
- *                 example: "665a57b9c2a7b3f5448be119"
- *                 description: MongoDB ObjectId of the user
  *               recipe_id:
  *                 type: string
  *                 example: "665a5aa7c2a7b3f5448be21d"
  *                 description: MongoDB ObjectId of the recipe
- *             required:
- *               - user_id
- *               - recipe_id
  *     responses:
  *       200:
  *         description: Successfully updated the view time of a recipe
@@ -727,6 +755,16 @@ router.delete('/:user_id/favoriteRecipe/:recipe_id', UserController.deleteFavori
  *                 message:
  *                   type: string
  *                   example: Added new viewed recipe
+ *       401:
+ *         description: Unauthorized - Missing or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Unauthorized
  *       404:
  *         description: User or Recipe not found
  *         content:
@@ -748,24 +786,17 @@ router.delete('/:user_id/favoriteRecipe/:recipe_id', UserController.deleteFavori
  *                   type: string
  *                   example: Internal Server Error
  */
-
-router.post('/addViewedRecipes', UserController.addViewedRecipe);
+router.post('/addViewedRecipes', authenticateToken, UserController.addViewedRecipe);
 
 /**
  * @swagger
- * /user/allViewRecipes/{user_id}:
+ * /user/allViewRecipes:
  *   get:
- *     summary: Get all viewed recipes by a user
+ *     summary: Get all viewed recipes of the authenticated user
  *     tags:
  *       - User_Recipes
- *     parameters:
- *       - in: path
- *         name: user_id
- *         required: true
- *         schema:
- *           type: string
- *         description: MongoDB ObjectId of the user
- *         example: "665a57b9c2a7b3f5448be119"
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of viewed recipes
@@ -789,6 +820,16 @@ router.post('/addViewedRecipes', UserController.addViewedRecipe);
  *                     type: string
  *                     format: date-time
  *                     example: "2024-05-23T14:30:00Z"
+ *       401:
+ *         description: Unauthorized - Missing or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Unauthorized
  *       404:
  *         description: User not found
  *         content:
@@ -810,6 +851,7 @@ router.post('/addViewedRecipes', UserController.addViewedRecipe);
  *                   type: string
  *                   example: "Internal Server Error"
  */
-router.get('/allViewRecipes/:user_id', UserController.getAllViewedRecipes);
+
+router.get('/allViewRecipes/', authenticateToken, UserController.getAllViewedRecipes);
 
 module.exports = router;

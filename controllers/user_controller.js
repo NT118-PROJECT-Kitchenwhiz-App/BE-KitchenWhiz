@@ -241,9 +241,9 @@ exports.logout = async (req, res) => {
 exports.updateAvatar = async (req, res) => {
     try {
         const imageFile = req.file;
-        let {userId} = req.body;
+        let userId = req.user.userId;
         
-        userId = new mongoose.Types.ObjectId(userId);
+        // userId = new mongoose.Types.ObjectId(userId);
 
         if (!imageFile) {
             return res.status(400).json({ message: 'Image is required' });
@@ -274,8 +274,8 @@ exports.updateAvatar = async (req, res) => {
 // Add Favorite Recipe
 exports.addFavoriteRecipe = async(req, res, next) => {
     try {
-        let {user_id, recipe_id} = req.body;
-        user_id = new mongoose.Types.ObjectId(user_id);
+        let {recipe_id} = req.body;
+        const user_id = req.user.userId;
         recipe_id = new mongoose.Types.ObjectId(recipe_id);
         
         if (!await UserService.checkUserById(user_id)) {
@@ -304,9 +304,8 @@ exports.addFavoriteRecipe = async(req, res, next) => {
 // Get all favorite recipes for the user
 exports.getAllFavoriteRecipes = async(req, res, next) => {
     try {
-        let {user_id} = req.params;
 
-        user_id = new mongoose.Types.ObjectId(user_id);
+        const user_id = req.user.userId;
 
         if (!await UserService.checkUserById(user_id)) {
             return res.status(404).json({error: "User not found"});
@@ -339,8 +338,8 @@ exports.getAllFavoriteRecipes = async(req, res, next) => {
 exports.deleteFavoriteRecipe = async (req, res, next) => {
     try {
 
-        let {user_id, recipe_id} = req.params;
-        user_id = new mongoose.Types.ObjectId(user_id);
+        let {recipe_id} = req.params;
+        const user_id = req.user.userId;
         recipe_id = new mongoose.Types.ObjectId(recipe_id);
 
         if (!await UserService.checkUserById(user_id)) {
@@ -369,9 +368,9 @@ exports.deleteFavoriteRecipe = async (req, res, next) => {
 // Add viewed viewed recipe
 exports.addViewedRecipe = async (req, res, next) => {
     try {
-        let {user_id, recipe_id} = req.body;
+        let {recipe_id} = req.body;
 
-        user_id = new mongoose.Types.ObjectId(user_id);
+        const user_id = req.user.userId;
         recipe_id = new mongoose.Types.ObjectId(recipe_id);
 
         if (!await UserService.checkUserById(user_id)) {
@@ -407,11 +406,8 @@ exports.addViewedRecipe = async (req, res, next) => {
 // Get All Viewed Recipe
 exports.getAllViewedRecipes = async(req, res, next) => {
     try {
-        let {user_id} = req.params;
-
-        user_id = new mongoose.Types.ObjectId(user_id);
-
-        console.log(user_id);
+        const user_id = req.user.userId;
+        
         if (!await UserService.checkUserById(user_id)) {
             return res.status(404).json({error: "User not found"});
         }
