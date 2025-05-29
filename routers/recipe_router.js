@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const RecipeController = require("../controllers/recipe_controller");
 const upload = require("../middleware/multer");
-
+const authenticateToken = require("../middleware/auth");
 /**
  * @swagger
  * /recipe/addRecipe:
@@ -9,6 +9,8 @@ const upload = require("../middleware/multer");
  *     summary: Thêm công thức mới
  *     tags:
  *       - Recipes
+ *     security:
+ *       - bearerAuth: [] 
  *     requestBody:
  *       required: true
  *       content:
@@ -54,7 +56,7 @@ const upload = require("../middleware/multer");
  *             schema:
  *               type: object
  *               properties:
- *                 messege:
+ *                 message:
  *                   type: string
  *                   example: Add recipe successful
  *       400:
@@ -78,7 +80,7 @@ const upload = require("../middleware/multer");
  *                   type: string
  *                   example: Internal Server Error
  */
-router.post('/addRecipe', upload.single('image'), RecipeController.addRecipe);
+router.post('/addRecipe', upload.single('image'), authenticateToken, RecipeController.addRecipe);
 
 /**
  * @swagger
@@ -87,6 +89,8 @@ router.post('/addRecipe', upload.single('image'), RecipeController.addRecipe);
  *     summary: Tìm món ăn theo tên thành phần
  *     tags:
  *       - Recipes
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: name
@@ -116,7 +120,7 @@ router.post('/addRecipe', upload.single('image'), RecipeController.addRecipe);
  *         description: Lỗi máy chủ
  */
 
-router.get('/searchByIngredient', RecipeController.searchByIngredient);
+router.get('/searchByIngredient', authenticateToken, RecipeController.searchByIngredient);
 
 /**
  * @swagger
@@ -125,6 +129,8 @@ router.get('/searchByIngredient', RecipeController.searchByIngredient);
  *     summary: Tìm kiếm món ăn theo tên
  *     tags:
  *       - Recipes
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: title
@@ -183,7 +189,7 @@ router.get('/searchByIngredient', RecipeController.searchByIngredient);
  *                   type: string
  *                   example: Internal Server Error
  */
-router.get('/searchByRecipe', RecipeController.searchByRecipe);
+router.get('/searchByRecipe', authenticateToken, RecipeController.searchByRecipe);
 
 /**
  * @swagger
@@ -192,6 +198,8 @@ router.get('/searchByRecipe', RecipeController.searchByRecipe);
  *     summary: Lấy một món ăn ngẫu nhiên
  *     tags:
  *       - Recipes
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Trả về một công thức món ăn ngẫu nhiên
@@ -223,7 +231,7 @@ router.get('/searchByRecipe', RecipeController.searchByRecipe);
  *                   type: string
  *                   example: Internal Server Error
  */
-router.get('/randomRecipe', RecipeController.randomRecipe);
+router.get('/randomRecipe', authenticateToken, RecipeController.randomRecipe);
 
 /**
  * @swagger
@@ -232,6 +240,8 @@ router.get('/randomRecipe', RecipeController.randomRecipe);
  *     summary: Lấy danh sách món ăn được nhiều người yêu thích
  *     tags:
  *       - Recipes
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Danh sách các công thức món ăn có nhiều lượt thích
@@ -265,7 +275,7 @@ router.get('/randomRecipe', RecipeController.randomRecipe);
  *                   type: string
  *                   example: Internal Server Error
  */
-router.get('/likeRecipes', RecipeController.getLikeRecipes);
+router.get('/likeRecipes', authenticateToken, RecipeController.getLikeRecipes);
 
 /**
  * @swagger
@@ -274,6 +284,8 @@ router.get('/likeRecipes', RecipeController.getLikeRecipes);
  *     summary: Lấy thông tin công thức theo ID
  *     tags:
  *       - Recipes
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - name: id
  *         in: path
@@ -353,8 +365,7 @@ router.get('/likeRecipes', RecipeController.getLikeRecipes);
  *                   example: Internal Server Error
  */
 
-router.get('/:id', RecipeController.getRecipe);
-
+router.get('/:id', authenticateToken, RecipeController.getRecipe);
 
 
 module.exports = router;

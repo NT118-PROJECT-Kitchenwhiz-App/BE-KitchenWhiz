@@ -121,22 +121,46 @@ exports.getRecipe = async (req, res, next) => {
 // Tim kiem mon an theo thanh phan
 exports.searchByIngredient = async (req, res, next) => {
     try {
-        const {name} = req.query;
+        const { name } = req.query;
 
         if (!name) {
-            return res.status(400).json({message: 'Ingredient name is require'});
+            return res.status(400).json({ message: 'Ingredient name is required' });
         }
-        const ingredients = await IngredientService.getIngredientsByName(name);
-        if (!ingredients) {
-            return res.status(404).json({message: 'Ingredient not found'});
-        }
-        
-        const recipeIdsNested = await Promise.all(ingredients.map(async (ingredient) => {
- 
-            return RecipesIngredientsService.getRecipeIdsByIngredientId(ingredient._id);
-        }));
-        const recipeIds = [...new Set(recipeIdsNested.flat().map(id => id.toString()))].map(id => new mongoose.Types.ObjectId(id));
 
+        const nameList = name.split(',').map(n => n.trim().toLowerCase());
+
+        // Tập hợp tất cả các nhóm recipeId tương ứng với từng nguyên liệu
+        const allRecipeIdGroups = [];
+
+        for (const n of nameList) {
+            const ingredients = await IngredientService.getIngredientsByName(n);
+
+            if (!ingredients || ingredients.length === 0) {
+                return res.status(404).json({ message: `Ingredient not found: ${n}` });
+            }
+
+            const recipeIdsForName = [];
+
+            for (const ingredient of ingredients) {
+                const ids = await RecipesIngredientsService.getRecipeIdsByIngredientId(ingredient._id);
+                recipeIdsForName.push(...ids.map(id => id.toString())); // dùng string để so sánh
+            }
+
+            allRecipeIdGroups.push(new Set(recipeIdsForName));
+        }
+
+        // Tìm giao nhau giữa tất cả tập recipeId
+        const intersectedRecipeIds = [...allRecipeIdGroups.reduce((a, b) => {
+            return new Set([...a].filter(x => b.has(x)));
+        })];
+
+        if (intersectedRecipeIds.length === 0) {
+            return res.status(200).json([]); // Không có công thức nào thỏa điều kiện
+        }
+
+        const recipeIds = intersectedRecipeIds.map(id => new mongoose.Types.ObjectId(id));
+
+        // Lấy thông tin công thức và ảnh
         const result = await Promise.all(recipeIds.map(async (recipeId) => {
             const recipe = await RecipeService.getRecipe(recipeId);
             if (recipe) {
@@ -150,15 +174,13 @@ exports.searchByIngredient = async (req, res, next) => {
             }
         }));
 
-        // console.log(result);
-        res.status(200).json(result);
+        res.status(200).json(result.filter(Boolean)); // loại null
 
-    }
-    catch (error) {
+    } catch (error) {
         console.error('Error search by ingredient:', error);
-        res.status(500).json({error: 'Internal Server Error'});
+        res.status(500).json({ error: 'Internal Server Error' });
     }
-}
+};
 
 // Tim kiem mon an theo
 exports.searchByRecipe = async(req, res, next) => {

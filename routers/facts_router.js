@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const FactController = require("../controllers/fact_controller");
+const authenticateToken = require("../middleware/auth");
 
 /**
  * @swagger
@@ -9,6 +10,8 @@ const FactController = require("../controllers/fact_controller");
  *     description: Creates a new fact with the provided quote.
  *     tags:
  *       - Facts
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -46,7 +49,7 @@ const FactController = require("../controllers/fact_controller");
  *         description: Internal Server Error
  */
 
-router.post('/createFact', FactController.createFact);
+router.post('/createFact', authenticateToken, FactController.createFact);
 
 /**
  * @swagger
@@ -56,6 +59,8 @@ router.post('/createFact', FactController.createFact);
  *     description: Returns a randomly selected fact from the database.
  *     tags:
  *       - Facts
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: A random fact was successfully retrieved
@@ -75,6 +80,6 @@ router.post('/createFact', FactController.createFact);
  *                   type: string
  *                   example: Internal Server Error
  */
-router.get('/getRandomFact', FactController.randomFact);
+router.get('/getRandomFact', authenticateToken, FactController.randomFact);
 
 module.exports = router;
