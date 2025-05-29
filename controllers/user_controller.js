@@ -77,13 +77,15 @@ exports.login = async(req, res, next) => {
 
         await UserService.updateRefreshToken(user._id, refreshToken);
         
+        const accessTokenExpire = "15m";
         res.status(201).json({
             status: true,
             _id: user._id,
             email: user.email,
             username: user.username,
             accessToken: accessToken,
-            refreshToken: refreshToken
+            refreshToken: refreshToken,
+            accessTokenExpire: accessTokenExpire
         });
     }
     catch (error) {
@@ -202,7 +204,8 @@ exports.refreshAccessToken = async (req, res) => {
         );
 
         res.status(200).json({
-            accessToken: newAccessToken
+            accessToken: newAccessToken,
+            accessTokenExpire: "15m"
         });
 
     } catch (error) {
@@ -407,7 +410,7 @@ exports.addViewedRecipe = async (req, res, next) => {
 exports.getAllViewedRecipes = async(req, res, next) => {
     try {
         const user_id = req.user.userId;
-        
+
         if (!await UserService.checkUserById(user_id)) {
             return res.status(404).json({error: "User not found"});
         }

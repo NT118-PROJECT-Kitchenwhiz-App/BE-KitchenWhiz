@@ -118,6 +118,9 @@ router.post('/registration', UserController.register);
  *                 refreshToken:
  *                   type: string
  *                   description: Token để lấy access token mới khi hết hạn
+ *                 accessTokenExpire:
+ *                   type: string
+ *                   example: 15m                 
  *       400:
  *         description: Sai thông tin đăng nhập
  *         content:
@@ -149,7 +152,6 @@ router.post('/registration', UserController.register);
  *                   type: string
  *                   example: Internal Server Error
  */
-
 router.post('/login', UserController.login);
 
 /**
@@ -408,6 +410,9 @@ router.post('/resetPassword', UserController.resetPassword);
  *                 accessToken:
  *                   type: string
  *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                 accessTokenExpire:
+ *                   type: string
+ *                   example: 15m
  *       401:
  *         description: Thiếu refresh token
  *         content:
