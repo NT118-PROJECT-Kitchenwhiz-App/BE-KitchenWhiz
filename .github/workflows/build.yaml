@@ -4,7 +4,7 @@ on:
     branches: [main]
   
 env:
-  DOCKER_IMAGES: ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_PROJECT}}:${{ GITHUB_REPOSITORY }}/${{ GITHUB_SHA }}
+  DOCKER_IMAGES: ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_PROJECT}}:${{ github.repository }}/${{ GITHUB_SHA }}
 
 jobs:
   docker:
