@@ -20,19 +20,20 @@
   "name": "be-kitchenwhiz",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/NT118-PROJECT-Kitchenwhiz-App/BE-KitchenWhiz.git"
+    "build": "npm run build:code && npm run build:static",
+    "build:code": "babel src --out-dir dist/src",
+    "build:static": "cpx \"public/**/*\" dist/public",
+    "start": "node dist/src/index.js"
   },
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/NT118-PROJECT-Kitchenwhiz-App/BE-KitchenWhiz/issues"
-  },
-  "homepage": "https://github.com/NT118-PROJECT-Kitchenwhiz-App/BE-KitchenWhiz#readme"
+  "devDependencies": {
+    "@babel/cli": "^7.27.2",
+    "@babel/core": "^7.27.1",
+    "@babel/preset-env": "^7.27.2",
+    "cpx": "^1.5.0"
+  }
 }

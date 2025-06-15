@@ -28,10 +28,7 @@ const userSchema = new Schema({
         type: String,
         default: ""
     },
-    avatar_url: {
-        type: String,
-        default: ""
-    }
+    avatar_url: String
 });
 
 userSchema.pre("save", async function(next) {

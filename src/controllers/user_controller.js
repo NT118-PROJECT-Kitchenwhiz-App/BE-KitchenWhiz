@@ -85,8 +85,7 @@ exports.login = async(req, res, next) => {
             username: user.username,
             accessToken: accessToken,
             refreshToken: refreshToken,
-            accessTokenExpire: accessTokenExpire,
-            avatar_url: user.avatar_url
+            accessTokenExpire: accessTokenExpire
         });
     }
     catch (error) {
