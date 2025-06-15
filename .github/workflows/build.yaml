@@ -32,7 +32,7 @@ jobs:
           file: ./Dockerfile
           builder: ${{ steps.buildx.output.name }}
           push: true
-          tags: DOCKER_IMAGE
+          tags: ${{ env.DOCKER_IMAGE }}
 
       - name: Verify
         run: echo ${{ steps.docker_build.output.digest}}
