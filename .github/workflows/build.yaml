@@ -20,9 +20,8 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
       
-      - name: Build image
-        run: docker build -t ${{ env.DOCKER_IMAGES }} .
-
-      - name: Push image
-        run: docker push ${{ env.DOCKER_IMAGES }}
+      - name: Build and push image
+        run: |
+          docker build -t ${{ env.DOCKER_IMAGES }} .
+          docker push ${{ env.DOCKER_IMAGES }}
 
