@@ -32,7 +32,7 @@ jobs:
           file: ./Dockerfile
           builder: ${{ steps.buildx.output.name }}
           push: true
-          tags: ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_PROJECT}}/${{ github.repository }}:${{ github.sha }}
+          tags: ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_PROJECT}}:${{ github.sha }}
 
       - name: Verify
         run: echo ${{ steps.docker_build.output.digest}}
