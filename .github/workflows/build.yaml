@@ -4,7 +4,7 @@ on:
     branches: [main]
   
 env:
-  DOCKER_IMAGES: ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_PROJECT}}:${{ github.sha }}
+  DOCKER_IMAGES: ${{ secrets.REGISTRY_URL }}/${{ secrets.REGISTRY_PROJECT}}/kitchenwhiz:${{ github.sha }}
 
 jobs:
   docker:
